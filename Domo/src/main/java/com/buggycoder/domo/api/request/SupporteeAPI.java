@@ -26,6 +26,13 @@ public class SupporteeAPI {
 
     static final String API_ROOT = "http://buggycoder.com:4000/api/v1/organizations/%s/advicerequest";
 
+    public static enum Action {
+        HELPFUL,
+        THANKYOU
+    }
+
+    ;
+
 
     public static void newAdviceRequest(String orgURL, String orgCode, String adviceRequest) throws UnsupportedEncodingException {
 
@@ -75,12 +82,11 @@ public class SupporteeAPI {
         RequestManager.getRequestQueue().add(apiRequest);
     }
 
-    public static void fetchAdviceRequest(String orgURL, String orgCode, final String advicerequestId, String token) throws UnsupportedEncodingException {
+    public static void fetchAdviceRequest(String orgURL, String orgCode, String advicerequestId, String token) throws UnsupportedEncodingException {
 
         String url = String.format(API_ROOT, orgURL) + "/" + advicerequestId
                 + "?code=" + URLEncoder.encode(orgCode, APIRequest.PROTOCOL_CHARSET)
                 + "&token=" + URLEncoder.encode(token, APIRequest.PROTOCOL_CHARSET);
-        Logger.d("url: %s", url);
 
         APIRequest apiRequest = new APIRequest<Organization, APIResponse<AdviceRequest>>(
                 Request.Method.GET,
@@ -116,9 +122,7 @@ public class SupporteeAPI {
                                 daoAdv.createIfNotExists(a);
                             }
 
-                            AdviceRequest ar2 = daoAr.queryForId(advicerequestId);
-                            Logger.dump(ar2);
-                            Logger.d("Advice count: " + ar2.getResponses().size());
+                            Logger.dump(ar);
                         } catch (SQLException e) {
                             e.printStackTrace();
                         }
@@ -138,11 +142,79 @@ public class SupporteeAPI {
 
     }
 
-    public static void markHelpful(String orgURL, String orgCode, String advicerequestId, String adviceId, String token) {
+    public static void markAdviceAttr(String orgURL, String orgCode, String advicerequestId, String adviceId, String token, Action action, int score) throws UnsupportedEncodingException {
 
+        String reqBodyAttr, reqURLFrag;
+
+        if (action == Action.HELPFUL) {
+            reqBodyAttr = "helpful";
+            reqURLFrag = "advicehelpful";
+        } else if (action == Action.THANKYOU) {
+            reqBodyAttr = "thankyou";
+            reqURLFrag = "advicethankyou";
+        } else {
+            throw new IllegalArgumentException("Invalid action");
+        }
+
+        ObjectNode reqBody = JsonManager.getMapper().createObjectNode();
+        reqBody.put(reqBodyAttr, score);
+
+        String url = String.format(API_ROOT, orgURL) + "/" + advicerequestId + "/advice/" + adviceId + "/" + reqURLFrag
+                + "?code=" + URLEncoder.encode(orgCode, APIRequest.PROTOCOL_CHARSET)
+                + "&token=" + URLEncoder.encode(token, APIRequest.PROTOCOL_CHARSET);
+
+        APIRequest apiRequest = new APIRequest<Organization, APIResponse<AdviceRequest>>(
+                Request.Method.POST,
+                url,
+                reqBody,
+                AdviceRequest.class,
+                new Response.Listener<APIResponse<AdviceRequest>>() {
+                    @Override
+                    public void onResponse(APIResponse<AdviceRequest> response) {
+                        if (response.hasError) {
+                            Logger.d("Error: " + response.errors.toString());
+                            return;
+                        }
+
+                        try {
+                            Dao<AdviceRequest, String> daoAr =
+                                    DatabaseHelper
+                                            .getDaoManager()
+                                            .getDao(AdviceRequest.class);
+
+                            Dao<Advice, String> daoAdv =
+                                    DatabaseHelper
+                                            .getDaoManager()
+                                            .getDao(Advice.class);
+
+                            AdviceRequest ar = response.getResponse();
+                            Dao.CreateOrUpdateStatus status = daoAr.createOrUpdate(ar);
+                            Logger.d(status.isCreated() + " | " + status.isUpdated());
+
+                            Collection<Advice> adviceList = ar.getResponses();
+                            for (Advice a : adviceList) {
+                                a.setAdviceRequest(ar);
+                                status = daoAdv.createOrUpdate(a);
+                                Logger.d(status.isCreated() + " | " + status.isUpdated());
+                            }
+
+                            Logger.dump(ar);
+                        } catch (SQLException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError volleyError) {
+                        Logger.d(volleyError.toString());
+                    }
+                }
+        );
+
+        apiRequest.setPath("advicerequest");
+
+        RequestManager.getRequestQueue().add(apiRequest);
     }
 
-    public static void thankSupporter(String orgURL, String orgCode, String advicerequestId, String adviceId, String token) {
-
-    }
 }

@@ -57,4 +57,20 @@
         android:layout_below="@+id/btnNewAdviceRequest"
         android:layout_centerHorizontal="true" />
 
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Mark Advice Request Helpful (MIT)"
+        android:id="@+id/btnAdviceRequestHelpful"
+        android:layout_below="@+id/btnFetchAdviceRequest"
+        android:layout_centerHorizontal="true" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Mark Advice Request ThankYou (MIT)"
+        android:id="@+id/btnAdviceRequestThankYou"
+        android:layout_below="@+id/btnAdviceRequestHelpful"
+        android:layout_centerHorizontal="true" />
+
 </RelativeLayout>
