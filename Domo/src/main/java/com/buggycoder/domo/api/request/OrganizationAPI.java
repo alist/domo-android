@@ -20,7 +20,8 @@ import java.sql.SQLException;
  */
 public class OrganizationAPI {
 
-    static final String API_ROOT = "http://buggycoder.com:4000/api/v1/organizations";
+    static final String API_ROOT = "http://buggycoder.com:4000/api/v1/organizations/";
+
 
     public static void getOrganizations() {
 

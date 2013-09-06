@@ -41,4 +41,20 @@
         android:layout_below="@+id/btnGetOrg"
         android:layout_centerHorizontal="true" />
 
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="New Advice Request (MIT)"
+        android:id="@+id/btnNewAdviceRequest"
+        android:layout_below="@+id/btnCheckOrgCode"
+        android:layout_centerHorizontal="true" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Fetch Advice Request (MIT)"
+        android:id="@+id/btnFetchAdviceRequest"
+        android:layout_below="@+id/btnNewAdviceRequest"
+        android:layout_centerHorizontal="true" />
+
 </RelativeLayout>
