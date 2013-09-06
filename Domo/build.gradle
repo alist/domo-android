@@ -1,0 +1,71 @@
+buildscript {
+    repositories {
+        mavenCentral()
+        maven { url 'https://oss.sonatype.org/service/local/staging/deploy/maven2/' }
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:0.5.+'
+    }
+}
+apply plugin: 'android'
+
+repositories {
+    mavenCentral()
+}
+
+android {
+    compileSdkVersion 17
+    buildToolsVersion "17.0.0"
+
+    defaultConfig {
+        minSdkVersion 9
+        targetSdkVersion 17
+        versionName '1.0'
+        versionCode 1
+    }
+}
+
+
+configurations {
+    apt
+    apt.extendsFrom(compile)
+}
+
+
+dependencies {
+    compile 'com.android.support:support-v4:13.0.0'
+    compile group: "com.fasterxml.jackson.core", name: "jackson-core", version: "2.2.2"
+    compile group: "com.fasterxml.jackson.core", name: "jackson-annotations", version: "2.2.2"
+    compile group: "com.fasterxml.jackson.core", name: "jackson-databind", version: "2.2.2"
+    compile group: "com.j256.ormlite", name: "ormlite-core", version: "4.45"
+    compile group: "com.j256.ormlite", name: "ormlite-android", version: "4.45"
+
+    compile('de.keyboardsurfer.android.widget:crouton:1.8.1') {
+        exclude module: 'support-v4'
+        compile 'com.android.support:support-v4:13.0.0'
+    }
+
+    compile project(':libraries:actionbarsherlock')
+
+    compile files('libs/eventbus-2.1.0-beta-1.jar')
+    compile files('libs/volley.jar')
+
+    apt group: "com.googlecode.androidannotations", name: "androidannotations", version: "2.7.1"
+    compile group: "com.googlecode.androidannotations", name: "androidannotations-api", version: "2.7.1"
+}
+
+
+afterEvaluate {
+    android.applicationVariants.each { variant ->
+        def aptOutputDir = file("${project.buildDir}/source/apt")
+
+        variant.javaCompile.doFirst {
+            aptOutputDir.mkdirs()
+            variant.javaCompile.options.compilerArgs += [
+                    '-processorpath', configurations.apt.getAsPath(),
+                    '-AandroidManifestFile=' + variant.processResources.manifestFile,
+                    '-s', aptOutputDir
+            ]
+        }
+    }
+}
