@@ -39,6 +39,9 @@
             </intent-filter>
         </activity>
         <activity
+            android:name=".ui.CodeCheckActivity_"
+            android:label="@string/app_name" />
+        <activity
             android:name=".ui.TestActivity_"
             android:label="@string/app_name" />
 

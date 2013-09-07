@@ -28,7 +28,7 @@ public class SplashActivity extends BaseFragmentActivity {
         btnGetAdvice.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                openActivity(TestActivity_.class, true);
+                openActivity(CodeCheckActivity_.class, true);
             }
         });
     }

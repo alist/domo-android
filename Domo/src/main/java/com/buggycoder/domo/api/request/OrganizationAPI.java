@@ -49,6 +49,7 @@ public class OrganizationAPI {
                                 Dao.CreateOrUpdateStatus status = daoOrg.createOrUpdate(o);
                                 Logger.d(status.isCreated() + " | " + status.isUpdated());
                             }
+
                         } catch (SQLException e) {
                             e.printStackTrace();
                         }
