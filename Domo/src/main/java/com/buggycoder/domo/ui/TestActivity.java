@@ -7,14 +7,15 @@ import com.buggycoder.domo.R;
 import com.buggycoder.domo.api.request.OrganizationAPI;
 import com.buggycoder.domo.api.request.SupporteeAPI;
 import com.buggycoder.domo.ui.base.BaseFragmentActivity;
-import com.googlecode.androidannotations.annotations.AfterViews;
-import com.googlecode.androidannotations.annotations.EActivity;
-import com.googlecode.androidannotations.annotations.ViewById;
+
+import org.androidannotations.annotations.AfterViews;
+import org.androidannotations.annotations.EActivity;
+import org.androidannotations.annotations.ViewById;
 
 import java.io.UnsupportedEncodingException;
 
-@EActivity(R.layout.activity_main)
-public class MainActivity extends BaseFragmentActivity {
+@EActivity(R.layout.activity_test)
+public class TestActivity extends BaseFragmentActivity {
 
     @ViewById
     Button btnGetOrgs;
@@ -50,7 +51,7 @@ public class MainActivity extends BaseFragmentActivity {
         btnGetOrg.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                OrganizationAPI.getOrganization("/mit");
+                OrganizationAPI.getOrganization("mit");
             }
         });
 

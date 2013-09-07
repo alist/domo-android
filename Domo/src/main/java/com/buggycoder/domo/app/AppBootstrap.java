@@ -9,16 +9,16 @@ import com.buggycoder.domo.db.DaoManager;
 import com.buggycoder.domo.db.DatabaseHelper;
 import com.buggycoder.domo.lib.Logger;
 import com.buggycoder.domo.lib.RequestManager;
-import com.googlecode.androidannotations.annotations.AfterInject;
-import com.googlecode.androidannotations.annotations.EBean;
-import com.googlecode.androidannotations.annotations.RootContext;
-import com.googlecode.androidannotations.api.Scope;
+
+import org.androidannotations.annotations.AfterInject;
+import org.androidannotations.annotations.EBean;
+import org.androidannotations.annotations.RootContext;
 
 /**
  * Created by shirish on 5/9/13.
  */
 
-@EBean(scope = Scope.Singleton)
+@EBean(scope = EBean.Scope.Singleton)
 public class AppBootstrap {
 
     @RootContext

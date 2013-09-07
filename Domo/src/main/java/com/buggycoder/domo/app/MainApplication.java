@@ -4,9 +4,10 @@ import android.app.Application;
 
 import com.buggycoder.domo.lib.Config;
 import com.buggycoder.domo.lib.Logger;
-import com.googlecode.androidannotations.annotations.AfterInject;
-import com.googlecode.androidannotations.annotations.Bean;
-import com.googlecode.androidannotations.annotations.EApplication;
+
+import org.androidannotations.annotations.AfterInject;
+import org.androidannotations.annotations.Bean;
+import org.androidannotations.annotations.EApplication;
 
 /**
  * Created by shirish on 14/6/13.

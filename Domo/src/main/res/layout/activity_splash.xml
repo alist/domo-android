@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/scrollView"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+        style="@style/activity"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <ImageView
+            android:id="@+id/ivLogo"
+            android:layout_width="fill_parent"
+            android:layout_height="200sp"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentRight="true"
+            android:maxHeight="100sp"
+            android:padding="30sp"
+            android:src="@drawable/logo" />
+
+
+        <LinearLayout
+            android:id="@+id/llDesc"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:background="#FFFFFF"
+            android:minHeight="100sp"
+            android:orientation="vertical"
+            android:padding="20sp">
+
+            <com.buggycoder.domo.ui.controls.CustomFontTextView
+                android:id="@+id/textView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center|left"
+                android:text="Domo scales culture."
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:textColor="#00B147" />
+
+            <com.buggycoder.domo.ui.controls.CustomFontTextView
+                android:id="@+id/textView2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="10sp"
+                android:text="By allowing employees to seek anonymous support and advice from mentors at their company, Domo promotes transparency, open communication, and community."
+                android:textAppearance="?android:attr/textAppearanceMedium" />
+
+            <Button
+                android:id="@+id/btnGetAdvice"
+                style="@style/btnGreen"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_centerVertical="true"
+                android:layout_gravity="center"
+                android:layout_margin="20sp"
+                android:text="Get Advice" />
+        </LinearLayout>
+
+
+    </LinearLayout>
+
+</ScrollView>

@@ -1,7 +1,8 @@
 package com.buggycoder.domo.lib;
 
-import com.googlecode.androidannotations.annotations.AfterInject;
-import com.googlecode.androidannotations.annotations.EBean;
+
+import org.androidannotations.annotations.AfterInject;
+import org.androidannotations.annotations.EBean;
 
 @EBean
 public class Config {
