@@ -5,9 +5,12 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.buggycoder.domo.api.response.APIResponse;
 import com.buggycoder.domo.api.response.APIResponseCollection;
+import com.buggycoder.domo.api.response.MyOrganization;
 import com.buggycoder.domo.api.response.Organization;
 import com.buggycoder.domo.db.DatabaseHelper;
+import com.buggycoder.domo.events.OrganizationEvents;
 import com.buggycoder.domo.lib.Logger;
+import com.buggycoder.domo.lib.PubSub;
 import com.buggycoder.domo.lib.RequestManager;
 import com.j256.ormlite.dao.Dao;
 
@@ -25,7 +28,7 @@ public class OrganizationAPI {
 
     public static void getOrganizations() {
 
-        APIRequest apiRequest = new APIRequest<Organization, APIResponseCollection<Organization>>(
+        APIRequest apiRequest = new APIRequest<APIResponseCollection<Organization>>(
                 Request.Method.GET,
                 API_ROOT,
                 null,
@@ -35,6 +38,7 @@ public class OrganizationAPI {
                     @Override
                     public void onResponse(APIResponseCollection<Organization> response) {
                         if (response.hasError) {
+                            PubSub.publish(new OrganizationEvents.GetOrganizationsResult(response));
                             Logger.d("Error: " + response.errors.toString());
                             return;
                         }
@@ -49,6 +53,8 @@ public class OrganizationAPI {
                                 Dao.CreateOrUpdateStatus status = daoOrg.createOrUpdate(o);
                                 Logger.d(status.isCreated() + " | " + status.isUpdated());
                             }
+
+                            PubSub.publish(new OrganizationEvents.GetOrganizationsResult(response));
 
                         } catch (SQLException e) {
                             e.printStackTrace();
@@ -71,7 +77,7 @@ public class OrganizationAPI {
 
     public static void getOrganization(String orgURL) {
 
-        APIRequest apiRequest = new APIRequest<Organization, APIResponse<Organization>>(
+        APIRequest apiRequest = new APIRequest<APIResponse<Organization>>(
                 Request.Method.GET,
                 API_ROOT + orgURL,
                 null,
@@ -115,34 +121,37 @@ public class OrganizationAPI {
 
     public static void checkCode(String orgURL, String orgCode) throws UnsupportedEncodingException {
 
-        APIRequest apiRequest = new APIRequest<Organization, APIResponse<Organization>>(
+        APIRequest apiRequest = new APIRequest<APIResponse<MyOrganization>>(
                 Request.Method.GET,
                 API_ROOT + orgURL + "/codecheck?code=" + URLEncoder.encode(orgCode, APIRequest.PROTOCOL_CHARSET),
                 null,
                 Organization.class,
-                new Response.Listener<APIResponse<Organization>>() {
+                new Response.Listener<APIResponse<MyOrganization>>() {
                     @Override
-                    public void onResponse(APIResponse<Organization> response) {
+                    public void onResponse(APIResponse<MyOrganization> response) {
 
                         if (response.hasError) {
                             Logger.d("Error: " + response.errors.toString());
+                            PubSub.publish(new OrganizationEvents.CheckOrgCodeResult(response));
                             return;
                         }
 
-                        Organization organization = response.getResponse();
+                        MyOrganization organization = response.getResponse();
                         Logger.dump(organization);
 
                         try {
-                            Dao<Organization, String> daoOrg =
+                            Dao<MyOrganization, String> daoOrg =
                                     DatabaseHelper
                                             .getDaoManager()
-                                            .getDao(Organization.class);
+                                            .getDao(MyOrganization.class);
                             Dao.CreateOrUpdateStatus status = daoOrg.createOrUpdate(organization);
                             Logger.d(status.isCreated() + " | " + status.isUpdated());
 
                         } catch (SQLException e) {
                             e.printStackTrace();
                         }
+
+                        PubSub.publish(new OrganizationEvents.CheckOrgCodeResult(response));
                     }
                 },
                 new Response.ErrorListener() {

@@ -6,7 +6,6 @@ import com.android.volley.VolleyError;
 import com.buggycoder.domo.api.response.APIResponse;
 import com.buggycoder.domo.api.response.Advice;
 import com.buggycoder.domo.api.response.AdviceRequest;
-import com.buggycoder.domo.api.response.Organization;
 import com.buggycoder.domo.db.DatabaseHelper;
 import com.buggycoder.domo.lib.JsonManager;
 import com.buggycoder.domo.lib.Logger;
@@ -41,7 +40,7 @@ public class SupporteeAPI {
         ObjectNode reqBody = JsonManager.getMapper().createObjectNode();
         reqBody.put("adviceRequest", adviceRequest);
 
-        APIRequest apiRequest = new APIRequest<Organization, APIResponse<AdviceRequest>>(
+        APIRequest apiRequest = new APIRequest<APIResponse<AdviceRequest>>(
                 Request.Method.POST,
                 url,
                 reqBody,
@@ -88,7 +87,7 @@ public class SupporteeAPI {
                 + "?code=" + URLEncoder.encode(orgCode, APIRequest.PROTOCOL_CHARSET)
                 + "&token=" + URLEncoder.encode(token, APIRequest.PROTOCOL_CHARSET);
 
-        APIRequest apiRequest = new APIRequest<Organization, APIResponse<AdviceRequest>>(
+        APIRequest apiRequest = new APIRequest<APIResponse<AdviceRequest>>(
                 Request.Method.GET,
                 url,
                 null,
@@ -163,7 +162,7 @@ public class SupporteeAPI {
                 + "?code=" + URLEncoder.encode(orgCode, APIRequest.PROTOCOL_CHARSET)
                 + "&token=" + URLEncoder.encode(token, APIRequest.PROTOCOL_CHARSET);
 
-        APIRequest apiRequest = new APIRequest<Organization, APIResponse<AdviceRequest>>(
+        APIRequest apiRequest = new APIRequest<APIResponse<AdviceRequest>>(
                 Request.Method.POST,
                 url,
                 reqBody,

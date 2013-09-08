@@ -22,7 +22,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
-public class APIRequest<T, E extends APIResponse<?>> extends Request<E> {
+public class APIRequest<E extends APIResponse<?>> extends Request<E> {
 
     public static final String PROTOCOL_CHARSET = "utf-8";
     private static final String PROTOCOL_CONTENT_TYPE =
@@ -35,10 +35,10 @@ public class APIRequest<T, E extends APIResponse<?>> extends Request<E> {
     private boolean mMapToCollection;
 
 
-    public APIRequest(int method,
-                      String url,
+    public <T> APIRequest(int method,
+                          String url,
                       JsonNode requestBody,
-                      Class responseType,
+                      Class<T> responseType,
                       boolean mapToCollection,
                       Response.Listener<E> listener,
                       Response.ErrorListener errorListener, boolean strict) {
@@ -52,20 +52,20 @@ public class APIRequest<T, E extends APIResponse<?>> extends Request<E> {
         mapper = strict ? JsonManager.getMapper() : JsonManager.getUnsafeMapper();
     }
 
-    public APIRequest(int method,
-                      String url,
+    public <T> APIRequest(int method,
+                          String url,
                       JsonNode requestBody,
-                      Class responseType,
+                      Class<T> responseType,
                       Response.Listener<E> listener,
                       Response.ErrorListener errorListener
     ) {
         this(method, url, requestBody, responseType, false, listener, errorListener, false);
     }
 
-    public APIRequest(int method,
-                      String url,
+    public <T> APIRequest(int method,
+                          String url,
                       JsonNode requestBody,
-                      Class responseType,
+                      Class<T> responseType,
                       boolean mapToCollection,
                       Response.Listener<E> listener,
                       Response.ErrorListener errorListener
@@ -81,7 +81,7 @@ public class APIRequest<T, E extends APIResponse<?>> extends Request<E> {
     @Override
     protected Response<E> parseNetworkResponse(NetworkResponse response) {
         try {
-            E result = (E) parseResponse(response.data);
+            E result = (E) parseResponse(response.data, mapper, path, mMapToCollection, mClass);
             return Response.success(result, getCacheEntry());
         } catch (IOException e) {
             VolleyLog.d("IOException %s", e.getMessage());
@@ -90,7 +90,7 @@ public class APIRequest<T, E extends APIResponse<?>> extends Request<E> {
         return null;
     }
 
-    private APIResponse parseResponse(byte[] responseBody) throws IOException {
+    private static <T> APIResponse parseResponse(byte[] responseBody, ObjectMapper mapper, List<String> path, boolean mapToCollection, Class<T> clazz) throws IOException {
         JsonNode jsonRes = mapper.readTree(responseBody);
         JsonNode response = jsonRes.path("response");
 
@@ -108,13 +108,13 @@ public class APIRequest<T, E extends APIResponse<?>> extends Request<E> {
 
         APIResponse apiResponse;
 
-        if (mMapToCollection) {
+        if (mapToCollection) {
             apiResponse = new APIResponseCollection<T>();
-            JavaType type = mapper.getTypeFactory().constructCollectionType(List.class, mClass);
+            JavaType type = mapper.getTypeFactory().constructCollectionType(List.class, clazz);
             apiResponse.setResponse(mapper.convertValue(response, type));
         } else {
             apiResponse = new APIResponse<T>();
-            apiResponse.setResponse(mapper.convertValue(response, mClass));
+            apiResponse.setResponse(mapper.convertValue(response, clazz));
         }
 
         parseMetaAndErrors(jsonRes, apiResponse);
