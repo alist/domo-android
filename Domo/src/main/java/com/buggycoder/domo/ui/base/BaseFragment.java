@@ -1,8 +1,10 @@
 package com.buggycoder.domo.ui.base;
 
-import android.app.Activity;
+import android.content.Intent;
+import android.os.Bundle;
 
 import com.actionbarsherlock.app.SherlockFragment;
+import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.buggycoder.domo.lib.PubSub;
 
 /**
@@ -11,36 +13,42 @@ import com.buggycoder.domo.lib.PubSub;
 public abstract class BaseFragment extends SherlockFragment {
 
     @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
+    public void onCreate(Bundle savedInstanceState) {
         PubSub.subscribe(this);
+        super.onCreate(savedInstanceState);
     }
 
     @Override
-    public void onDetach() {
-        super.onDetach();
+    public void onDestroy() {
         PubSub.unsubscribe(this);
+        super.onDestroy();
     }
 
-//
-//    protected void openActivity(Class clazz) {
-//        openActivity(clazz, false);
-//    }
 
-//    protected void openActivity(Class clazz, boolean finish) {
-//        SherlockFragmentActivity context = getSherlockActivity();
-//        PubSub.unsubscribe(this);
-//        Intent intent = new Intent(context, clazz);
-//        context.startActivity(intent);
-//        if (finish) {
-//            context.finish();
-//        }
-//    }
+    protected void openActivity(Class clazz) {
+        openActivity(clazz, null, false);
+    }
+
+    protected void openActivity(Class clazz, Bundle extras, boolean finish) {
+        SherlockFragmentActivity context = getSherlockActivity();
+        PubSub.unsubscribe(this);
+        Intent intent = new Intent(context, clazz);
+        if (extras != null) {
+            intent.putExtras(extras);
+        }
+
+        context.startActivity(intent);
+        if (finish) {
+            context.finish();
+        }
+    }
 
 
     protected void onEvent(Object o) {
+
     }
 
     protected void onEventMainThread(Object o) {
+
     }
 }

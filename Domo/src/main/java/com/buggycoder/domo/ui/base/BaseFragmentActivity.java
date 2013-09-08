@@ -1,6 +1,7 @@
 package com.buggycoder.domo.ui.base;
 
 import android.content.Intent;
+import android.os.Bundle;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.buggycoder.domo.events.Network;
@@ -33,8 +34,15 @@ public abstract class BaseFragmentActivity extends SherlockFragmentActivity {
     }
 
     protected void openActivity(Class clazz, boolean finish) {
+        openActivity(clazz, null, finish);
+    }
+
+    protected void openActivity(Class clazz, Bundle extras, boolean finish) {
         PubSub.unsubscribe(this);
         Intent intent = new Intent(this, clazz);
+        if (extras != null) {
+            intent.putExtras(extras);
+        }
         startActivity(intent);
         if (finish) {
             finish();

@@ -16,11 +16,14 @@ import java.util.Map;
         "_id",
         "id",
         "bannerURL",
+        "code",
         "orgURL",
-        "displayName"
+        "displayName",
+        "region",
+        "city"
 })
-@DatabaseTable(tableName = "organizations")
-public class Organization {
+@DatabaseTable(tableName = "my_organizations")
+public class MyOrganization {
 
     @JsonProperty("_id")
     @DatabaseField(id = true)
@@ -39,12 +42,44 @@ public class Organization {
     private String displayName;
 
 
+    @JsonProperty("code")
+    @DatabaseField(canBeNull = true)
+    private String code;
+
     @JsonProperty("bannerURL")
     @DatabaseField(canBeNull = true)
     private String bannerURL;
 
+    @JsonProperty("region")
+    @DatabaseField(canBeNull = true)
+    private String region;
+
+    @JsonProperty("city")
+    @DatabaseField(canBeNull = true)
+    private String city;
+
 
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
+
+    @JsonProperty("region")
+    public String getRegion() {
+        return region;
+    }
+
+    @JsonProperty("region")
+    public void setRegion(String region) {
+        this.region = region;
+    }
+
+    @JsonProperty("city")
+    public String getCity() {
+        return city;
+    }
+
+    @JsonProperty("city")
+    public void setCity(String city) {
+        this.city = city;
+    }
 
     @JsonProperty("bannerURL")
     public String getBannerURL() {
@@ -54,6 +89,16 @@ public class Organization {
     @JsonProperty("bannerURL")
     public void setBannerURL(String bannerURL) {
         this.bannerURL = bannerURL;
+    }
+
+    @JsonProperty("code")
+    public String getCode() {
+        return code;
+    }
+
+    @JsonProperty("code")
+    public void setCode(String code) {
+        this.code = code;
     }
 
     @JsonProperty("orgURL")

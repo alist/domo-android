@@ -7,8 +7,10 @@ import com.buggycoder.domo.api.response.APIResponse;
 import com.buggycoder.domo.api.response.Advice;
 import com.buggycoder.domo.api.response.AdviceRequest;
 import com.buggycoder.domo.db.DatabaseHelper;
+import com.buggycoder.domo.events.SupporteeEvents;
 import com.buggycoder.domo.lib.JsonManager;
 import com.buggycoder.domo.lib.Logger;
+import com.buggycoder.domo.lib.PubSub;
 import com.buggycoder.domo.lib.RequestManager;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.j256.ormlite.dao.Dao;
@@ -36,6 +38,7 @@ public class SupporteeAPI {
     public static void newAdviceRequest(String orgURL, String orgCode, String adviceRequest) throws UnsupportedEncodingException {
 
         String url = String.format(API_ROOT, orgURL) + "?code=" + URLEncoder.encode(orgCode, APIRequest.PROTOCOL_CHARSET);
+        Logger.d(url);
 
         ObjectNode reqBody = JsonManager.getMapper().createObjectNode();
         reqBody.put("adviceRequest", adviceRequest);
@@ -49,6 +52,7 @@ public class SupporteeAPI {
                     @Override
                     public void onResponse(APIResponse<AdviceRequest> response) {
                         if (response.hasError) {
+                            PubSub.publish(new SupporteeEvents.GetAdviceResult(response));
                             Logger.d("Error: " + response.errors.toString());
                             return;
                         }
@@ -61,6 +65,8 @@ public class SupporteeAPI {
 
                             AdviceRequest ar = response.getResponse();
                             Dao.CreateOrUpdateStatus status = daoOrg.createOrUpdate(ar);
+                            PubSub.publish(new SupporteeEvents.GetAdviceResult(response));
+
                             Logger.d(status.isCreated() + " | " + status.isUpdated());
                             Logger.dump(ar);
                         } catch (SQLException e) {

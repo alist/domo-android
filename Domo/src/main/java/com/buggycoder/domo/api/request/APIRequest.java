@@ -2,9 +2,11 @@ package com.buggycoder.domo.api.request;
 
 
 import com.android.volley.NetworkResponse;
+import com.android.volley.NoConnectionError;
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.ServerError;
+import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 import com.android.volley.VolleyLog;
 import com.buggycoder.domo.api.response.APIResponse;
@@ -37,11 +39,11 @@ public class APIRequest<E extends APIResponse<?>> extends Request<E> {
 
     public <T> APIRequest(int method,
                           String url,
-                      JsonNode requestBody,
-                      Class<T> responseType,
-                      boolean mapToCollection,
-                      Response.Listener<E> listener,
-                      Response.ErrorListener errorListener, boolean strict) {
+                          JsonNode requestBody,
+                          Class<T> responseType,
+                          boolean mapToCollection,
+                          Response.Listener<E> listener,
+                          Response.ErrorListener errorListener, boolean strict) {
 
         super(method, url, getErrorListener(responseType, mapToCollection, listener, errorListener));
 
@@ -54,21 +56,21 @@ public class APIRequest<E extends APIResponse<?>> extends Request<E> {
 
     public <T> APIRequest(int method,
                           String url,
-                      JsonNode requestBody,
-                      Class<T> responseType,
-                      Response.Listener<E> listener,
-                      Response.ErrorListener errorListener
+                          JsonNode requestBody,
+                          Class<T> responseType,
+                          Response.Listener<E> listener,
+                          Response.ErrorListener errorListener
     ) {
         this(method, url, requestBody, responseType, false, listener, errorListener, false);
     }
 
     public <T> APIRequest(int method,
                           String url,
-                      JsonNode requestBody,
-                      Class<T> responseType,
-                      boolean mapToCollection,
-                      Response.Listener<E> listener,
-                      Response.ErrorListener errorListener
+                          JsonNode requestBody,
+                          Class<T> responseType,
+                          boolean mapToCollection,
+                          Response.Listener<E> listener,
+                          Response.ErrorListener errorListener
     ) {
         this(method, url, requestBody, responseType, mapToCollection, listener, errorListener, false);
     }
@@ -173,15 +175,15 @@ public class APIRequest<E extends APIResponse<?>> extends Request<E> {
             @Override
             public void onErrorResponse(VolleyError volleyError) {
 
+                APIResponse apiResponse;
+
+                if (mapToCollection) {
+                    apiResponse = new APIResponseCollection<S>();
+                } else {
+                    apiResponse = new APIResponse<S>();
+                }
+
                 if (volleyError instanceof ServerError) {
-                    APIResponse apiResponse;
-
-                    if (mapToCollection) {
-                        apiResponse = new APIResponseCollection<S>();
-                    } else {
-                        apiResponse = new APIResponse<S>();
-                    }
-
                     try {
                         JsonNode jsonRes = JsonManager.getUnsafeMapper().readTree(volleyError.networkResponse.data);
                         parseMetaAndErrors(jsonRes, apiResponse);
@@ -190,6 +192,11 @@ public class APIRequest<E extends APIResponse<?>> extends Request<E> {
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
+                } else if (volleyError instanceof TimeoutError || volleyError instanceof NoConnectionError) {
+                    apiResponse.hasError = true;
+                    List<String> errors = new ArrayList();
+                    errors.add((volleyError instanceof TimeoutError) ? "Network timed out" : "No connectivity");
+                    apiResponse.errors = errors;
                 }
 
                 errorListener.onErrorResponse(volleyError);

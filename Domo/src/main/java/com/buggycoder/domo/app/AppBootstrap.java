@@ -4,6 +4,7 @@ import android.content.Context;
 
 import com.buggycoder.domo.api.response.Advice;
 import com.buggycoder.domo.api.response.AdviceRequest;
+import com.buggycoder.domo.api.response.MyOrganization;
 import com.buggycoder.domo.api.response.Organization;
 import com.buggycoder.domo.db.DaoManager;
 import com.buggycoder.domo.db.DatabaseHelper;
@@ -37,8 +38,10 @@ public class AppBootstrap {
     public void initDb() {
         DatabaseHelper.init(context);
         DaoManager daoManager = DatabaseHelper.getDaoManager();
-        daoManager.registerDaoClass(Organization.class);
-        daoManager.registerDaoClass(AdviceRequest.class);
-        daoManager.registerDaoClass(Advice.class);
+        daoManager
+                .registerDaoClass(Organization.class)
+                .registerDaoClass(MyOrganization.class)
+                .registerDaoClass(AdviceRequest.class)
+                .registerDaoClass(Advice.class);
     }
 }

@@ -1,7 +1,7 @@
 package com.buggycoder.domo.ui.fragment;
 
-import com.actionbarsherlock.app.SherlockFragment;
 import com.buggycoder.domo.R;
+import com.buggycoder.domo.ui.base.BaseFragment;
 
 import org.androidannotations.annotations.EFragment;
 
@@ -10,5 +10,5 @@ import org.androidannotations.annotations.EFragment;
  */
 
 @EFragment(R.layout.frag_wait)
-public class WaitFragment extends SherlockFragment {
+public class WaitFragment extends BaseFragment {
 }

@@ -125,7 +125,7 @@ public class OrganizationAPI {
                 Request.Method.GET,
                 API_ROOT + orgURL + "/codecheck?code=" + URLEncoder.encode(orgCode, APIRequest.PROTOCOL_CHARSET),
                 null,
-                Organization.class,
+                MyOrganization.class,
                 new Response.Listener<APIResponse<MyOrganization>>() {
                     @Override
                     public void onResponse(APIResponse<MyOrganization> response) {

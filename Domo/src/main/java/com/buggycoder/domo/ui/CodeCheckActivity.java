@@ -1,20 +1,23 @@
 package com.buggycoder.domo.ui;
 
+import android.os.Bundle;
 import android.view.Window;
 import android.widget.FrameLayout;
 
 import com.buggycoder.domo.R;
 import com.buggycoder.domo.api.request.OrganizationAPI;
+import com.buggycoder.domo.events.OrganizationEvents;
 import com.buggycoder.domo.ui.base.BaseFragmentActivity;
 import com.buggycoder.domo.ui.fragment.CodeCheckFragment;
 import com.buggycoder.domo.ui.fragment.CodeCheckFragment_;
+import com.buggycoder.domo.ui.fragment.ErrorFragment;
+import com.buggycoder.domo.ui.fragment.ErrorFragment_;
 import com.buggycoder.domo.ui.fragment.WaitFragment;
 import com.buggycoder.domo.ui.fragment.WaitFragment_;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Background;
 import org.androidannotations.annotations.EActivity;
-import org.androidannotations.annotations.UiThread;
 import org.androidannotations.annotations.ViewById;
 import org.androidannotations.annotations.WindowFeature;
 
@@ -40,16 +43,26 @@ public class CodeCheckActivity extends BaseFragmentActivity {
     @Background
     protected void fetchOrganizations() {
         OrganizationAPI.getOrganizations();
-        try {
-            Thread.sleep(5000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+    }
+
+    protected void onEventMainThread(OrganizationEvents.GetOrganizationsResult o) {
+        if (o.result.hasError) {
+            Bundle args = new Bundle();
+            args.putString(ErrorFragment.KEY_ERROR, o.result.errors.get(0));
+
+            ErrorFragment errorFragment = new ErrorFragment_();
+            errorFragment.setArguments(args);
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.fragmentContainer, errorFragment)
+                    .commit();
+            return;
         }
 
         showOrgCodeCheck();
     }
 
-    @UiThread
+
     protected void showOrgCodeCheck() {
         CodeCheckFragment codeCheckFragment = new CodeCheckFragment_();
         getSupportFragmentManager()

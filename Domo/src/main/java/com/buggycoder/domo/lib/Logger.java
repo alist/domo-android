@@ -2,8 +2,6 @@ package com.buggycoder.domo.lib;
 
 import android.util.Log;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-
 /**
  * Created by shirish on 14/6/13.
  */
@@ -41,7 +39,7 @@ public class Logger {
     public static void dump(Object o) {
         try {
             Logger.d(o.getClass().getSimpleName() + " | " + JsonManager.getUnsafeMapper().writeValueAsString(o));
-        } catch (JsonProcessingException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
