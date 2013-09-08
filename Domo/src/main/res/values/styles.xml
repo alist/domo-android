@@ -16,11 +16,11 @@
     <style name="AppTheme" parent="AppBaseTheme">
         <!-- All customizations that are NOT specific to a particular API-level can go here. -->
         <item name="android:windowNoTitle">true</item>
+
     </style>
 
     <style name="activity">
-        <item name="android:background">@drawable/bg</item>
-        <item name="android:tileMode">repeat</item>
+        <item name="android:background">@drawable/background</item>
     </style>
 
     <style name="activityPadded" parent="activity">

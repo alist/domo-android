@@ -14,14 +14,32 @@
         android:layout_alignParentRight="true"
         android:text="Verify Organization"
         android:textAppearance="?android:attr/textAppearanceLarge"
-        android:textColor="@color/domo_green" />
+        android:textColor="@color/domo_green"
+        android:layout_gravity="center"
+        android:layout_marginBottom="20sp" />
 
     <com.buggycoder.domo.ui.controls.CustomFontTextView
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="left"
         android:layout_marginTop="10sp"
-        android:text="Please enter your organization's code:"
+        android:text="Organization:"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+
+    <AutoCompleteTextView
+        android:id="@+id/acOrgCode"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:singleLine="true"
+        android:completionThreshold="1" />
+
+    <com.buggycoder.domo.ui.controls.CustomFontTextView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="left"
+        android:layout_marginTop="20sp"
+        android:text="Organization code:"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <EditText
@@ -34,6 +52,7 @@
         android:maxLength="8"
         android:textColor="@color/domo_green"
         android:cursorVisible="true"
+        android:singleLine="true"
         android:textSize="40sp" />
 
     <Button
