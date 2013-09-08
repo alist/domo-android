@@ -33,7 +33,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:singleLine="true"
-        android:completionThreshold="1" />
+        android:completionThreshold="1"
+        android:dropDownHeight="200sp"
+        android:maxLines="2" />
 
     <com.buggycoder.domo.ui.controls.CustomFontTextView
         android:layout_width="fill_parent"

@@ -46,6 +46,7 @@ public class GetAdviceActivity extends BaseFragmentActivity {
 
     @AfterViews
     protected void afterViews() {
+        setSupportProgressBarIndeterminateVisibility(false);
         setProgressBarIndeterminate(false);
 
         Bundle args = getIntent().getExtras();
@@ -70,6 +71,7 @@ public class GetAdviceActivity extends BaseFragmentActivity {
 
         switch (item.getItemId()) {
             case R.id.mnuGetAdvice:
+                setSupportProgressBarIndeterminateVisibility(true);
                 setProgressBarIndeterminate(true);
                 newAdviceRequest();
                 return true;
@@ -90,6 +92,7 @@ public class GetAdviceActivity extends BaseFragmentActivity {
 
 
     protected void onEventMainThread(SupporteeEvents.GetAdviceResult o) {
+        setSupportProgressBarIndeterminateVisibility(false);
         setProgressBarIndeterminate(false);
         etQuery.setText("");
 

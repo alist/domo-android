@@ -10,7 +10,7 @@
         android:layout_height="wrap_content"
         android:text=""
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:paddingStart="20sp"
+        android:paddingLeft="20sp"
         android:paddingRight="20sp"
         android:paddingTop="15sp"
         android:paddingBottom="15sp"
