@@ -18,7 +18,7 @@ repositories {
 
 android {
     compileSdkVersion 17
-    buildToolsVersion "17.0.0"
+    buildToolsVersion "18.0.1"
 
     defaultConfig {
         minSdkVersion 9
@@ -36,7 +36,7 @@ configurations {
 
 
 dependencies {
-    compile 'com.android.support:support-v4:13.0.0'
+    compile 'com.android.support:support-v4:18.0.0'
     compile group: "com.fasterxml.jackson.core", name: "jackson-core", version: "2.2.2"
     compile group: "com.fasterxml.jackson.core", name: "jackson-annotations", version: "2.2.2"
     compile group: "com.fasterxml.jackson.core", name: "jackson-databind", version: "2.2.2"
@@ -45,7 +45,7 @@ dependencies {
 
     compile('de.keyboardsurfer.android.widget:crouton:1.8.1') {
         exclude module: 'support-v4'
-        compile 'com.android.support:support-v4:13.0.0'
+        compile 'com.android.support:support-v4:18.0.0'
     }
 
     compile project(':libraries:actionbarsherlock')

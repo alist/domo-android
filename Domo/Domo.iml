@@ -71,7 +71,6 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" exported="" name="crouton-1.8.1" level="project" />
     <orderEntry type="library" exported="" name="jackson-core-2.2.2" level="project" />
-    <orderEntry type="library" exported="" name="support-v4-13.0.0" level="project" />
     <orderEntry type="library" exported="" name="jackson-databind-2.2.2" level="project" />
     <orderEntry type="library" exported="" name="ormlite-core-4.45" level="project" />
     <orderEntry type="module" module-name="actionbarsherlock" exported="" />
@@ -80,6 +79,7 @@
     <orderEntry type="library" exported="" name="androidannotations-api-3.0-SNAPSHOT" level="project" />
     <orderEntry type="library" exported="" name="eventbus-2.1.0-beta-1" level="project" />
     <orderEntry type="library" exported="" name="ormlite-android-4.45" level="project" />
+    <orderEntry type="library" exported="" name="support-v4-18.0.0" level="project" />
   </component>
 </module>
 
