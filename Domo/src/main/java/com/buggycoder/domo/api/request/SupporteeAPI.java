@@ -1,7 +1,6 @@
 package com.buggycoder.domo.api.request;
 
 import com.android.volley.Request;
-import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.buggycoder.domo.api.response.APIResponse;
 import com.buggycoder.domo.api.response.Advice;
@@ -27,14 +26,6 @@ public class SupporteeAPI {
 
     static final String API_ROOT = "http://buggycoder.com:4000/api/v1/organizations/%s/advicerequest";
 
-    public static enum Action {
-        HELPFUL,
-        THANKYOU
-    }
-
-    ;
-
-
     public static void newAdviceRequest(String orgURL, String orgCode, String adviceRequest) throws UnsupportedEncodingException {
 
         String url = String.format(API_ROOT, orgURL) + "?code=" + URLEncoder.encode(orgCode, APIRequest.PROTOCOL_CHARSET);
@@ -43,49 +34,52 @@ public class SupporteeAPI {
         ObjectNode reqBody = JsonManager.getMapper().createObjectNode();
         reqBody.put("adviceRequest", adviceRequest);
 
+        APIRequest.ResponseHandler responseHandler = new APIRequest.ResponseHandler<APIResponse<AdviceRequest>>(AdviceRequest.class, false) {
+            @Override
+            public void onResponse(APIResponse<AdviceRequest> response) {
+                if (response.hasError) {
+                    PubSub.publish(new SupporteeEvents.GetAdviceResult(response));
+                    Logger.d("Error: " + response.errors.toString());
+                    return;
+                }
+
+                try {
+                    Dao<AdviceRequest, String> daoOrg =
+                            DatabaseHelper
+                                    .getDaoManager()
+                                    .getDao(AdviceRequest.class);
+
+                    AdviceRequest ar = response.getResponse();
+                    Dao.CreateOrUpdateStatus status = daoOrg.createOrUpdate(ar);
+                    PubSub.publish(new SupporteeEvents.GetAdviceResult(response));
+
+                    Logger.d(status.isCreated() + " | " + status.isUpdated());
+                    Logger.dump(ar);
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+
+        responseHandler.setPath("response.advicerequest");
+
         APIRequest apiRequest = new APIRequest<APIResponse<AdviceRequest>>(
                 Request.Method.POST,
                 url,
                 reqBody,
-                AdviceRequest.class,
-                new Response.Listener<APIResponse<AdviceRequest>>() {
-                    @Override
-                    public void onResponse(APIResponse<AdviceRequest> response) {
-                        if (response.hasError) {
-                            PubSub.publish(new SupporteeEvents.GetAdviceResult(response));
-                            Logger.d("Error: " + response.errors.toString());
-                            return;
-                        }
-
-                        try {
-                            Dao<AdviceRequest, String> daoOrg =
-                                    DatabaseHelper
-                                            .getDaoManager()
-                                            .getDao(AdviceRequest.class);
-
-                            AdviceRequest ar = response.getResponse();
-                            Dao.CreateOrUpdateStatus status = daoOrg.createOrUpdate(ar);
-                            PubSub.publish(new SupporteeEvents.GetAdviceResult(response));
-
-                            Logger.d(status.isCreated() + " | " + status.isUpdated());
-                            Logger.dump(ar);
-                        } catch (SQLException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                },
-                new Response.ErrorListener() {
+                responseHandler,
+                new APIRequest.ErrorHandler() {
                     @Override
                     public void onErrorResponse(VolleyError volleyError) {
-                        Logger.d(volleyError.toString());
+                        Logger.dump(volleyError);
                     }
                 }
         );
 
-        apiRequest.setPath("advicerequest");
-
         RequestManager.getRequestQueue().add(apiRequest);
     }
+
+    ;
 
     public static void fetchAdviceRequest(String orgURL, String orgCode, String advicerequestId, String token) throws UnsupportedEncodingException {
 
@@ -93,58 +87,57 @@ public class SupporteeAPI {
                 + "?code=" + URLEncoder.encode(orgCode, APIRequest.PROTOCOL_CHARSET)
                 + "&token=" + URLEncoder.encode(token, APIRequest.PROTOCOL_CHARSET);
 
+        APIRequest.ResponseHandler responseHandler = new APIRequest.ResponseHandler<APIResponse<AdviceRequest>>(AdviceRequest.class, false) {
+            @Override
+            public void onResponse(APIResponse<AdviceRequest> response) {
+                if (response.hasError) {
+                    Logger.d("Error: " + response.errors.toString());
+                    return;
+                }
+
+                try {
+                    Dao<AdviceRequest, String> daoAr =
+                            DatabaseHelper
+                                    .getDaoManager()
+                                    .getDao(AdviceRequest.class);
+
+                    Dao<Advice, String> daoAdv =
+                            DatabaseHelper
+                                    .getDaoManager()
+                                    .getDao(Advice.class);
+
+                    AdviceRequest ar = response.getResponse();
+                    Dao.CreateOrUpdateStatus status = daoAr.createOrUpdate(ar);
+                    Logger.d(status.isCreated() + " | " + status.isUpdated());
+
+                    Collection<Advice> adviceList = ar.getResponses();
+                    for (Advice a : adviceList) {
+                        a.setAdviceRequest(ar);
+                        daoAdv.createIfNotExists(a);
+                    }
+
+                    Logger.dump(ar);
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+        responseHandler.setPath("response.advicerequest");
+
         APIRequest apiRequest = new APIRequest<APIResponse<AdviceRequest>>(
                 Request.Method.GET,
                 url,
                 null,
-                AdviceRequest.class,
-                new Response.Listener<APIResponse<AdviceRequest>>() {
-                    @Override
-                    public void onResponse(APIResponse<AdviceRequest> response) {
-                        if (response.hasError) {
-                            Logger.d("Error: " + response.errors.toString());
-                            return;
-                        }
-
-                        try {
-                            Dao<AdviceRequest, String> daoAr =
-                                    DatabaseHelper
-                                            .getDaoManager()
-                                            .getDao(AdviceRequest.class);
-
-                            Dao<Advice, String> daoAdv =
-                                    DatabaseHelper
-                                            .getDaoManager()
-                                            .getDao(Advice.class);
-
-                            AdviceRequest ar = response.getResponse();
-                            Dao.CreateOrUpdateStatus status = daoAr.createOrUpdate(ar);
-                            Logger.d(status.isCreated() + " | " + status.isUpdated());
-
-                            Collection<Advice> adviceList = ar.getResponses();
-                            for (Advice a : adviceList) {
-                                a.setAdviceRequest(ar);
-                                daoAdv.createIfNotExists(a);
-                            }
-
-                            Logger.dump(ar);
-                        } catch (SQLException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                },
-                new Response.ErrorListener() {
+                responseHandler,
+                new APIRequest.ErrorHandler() {
                     @Override
                     public void onErrorResponse(VolleyError volleyError) {
-                        Logger.d(volleyError.toString());
+
                     }
                 }
         );
 
-        apiRequest.setPath("advicerequest");
-
         RequestManager.getRequestQueue().add(apiRequest);
-
     }
 
     public static void markAdviceAttr(String orgURL, String orgCode, String advicerequestId, String adviceId, String token, Action action, int score) throws UnsupportedEncodingException {
@@ -168,58 +161,65 @@ public class SupporteeAPI {
                 + "?code=" + URLEncoder.encode(orgCode, APIRequest.PROTOCOL_CHARSET)
                 + "&token=" + URLEncoder.encode(token, APIRequest.PROTOCOL_CHARSET);
 
+        APIRequest.ResponseHandler responseHandler = new APIRequest.ResponseHandler<APIResponse<AdviceRequest>>(AdviceRequest.class, false) {
+            @Override
+            public void onResponse(APIResponse<AdviceRequest> response) {
+                if (response.hasError) {
+                    Logger.d("Error: " + response.errors.toString());
+                    return;
+                }
+
+                try {
+                    Dao<AdviceRequest, String> daoAr =
+                            DatabaseHelper
+                                    .getDaoManager()
+                                    .getDao(AdviceRequest.class);
+
+                    Dao<Advice, String> daoAdv =
+                            DatabaseHelper
+                                    .getDaoManager()
+                                    .getDao(Advice.class);
+
+                    AdviceRequest ar = response.getResponse();
+                    Dao.CreateOrUpdateStatus status = daoAr.createOrUpdate(ar);
+                    Logger.d(status.isCreated() + " | " + status.isUpdated());
+
+                    Collection<Advice> adviceList = ar.getResponses();
+                    for (Advice a : adviceList) {
+                        a.setAdviceRequest(ar);
+                        status = daoAdv.createOrUpdate(a);
+                        Logger.d(status.isCreated() + " | " + status.isUpdated());
+                    }
+
+                    Logger.dump(ar);
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+
+        responseHandler.setPath("response.advicerequest");
+
         APIRequest apiRequest = new APIRequest<APIResponse<AdviceRequest>>(
                 Request.Method.POST,
                 url,
                 reqBody,
-                AdviceRequest.class,
-                new Response.Listener<APIResponse<AdviceRequest>>() {
-                    @Override
-                    public void onResponse(APIResponse<AdviceRequest> response) {
-                        if (response.hasError) {
-                            Logger.d("Error: " + response.errors.toString());
-                            return;
-                        }
-
-                        try {
-                            Dao<AdviceRequest, String> daoAr =
-                                    DatabaseHelper
-                                            .getDaoManager()
-                                            .getDao(AdviceRequest.class);
-
-                            Dao<Advice, String> daoAdv =
-                                    DatabaseHelper
-                                            .getDaoManager()
-                                            .getDao(Advice.class);
-
-                            AdviceRequest ar = response.getResponse();
-                            Dao.CreateOrUpdateStatus status = daoAr.createOrUpdate(ar);
-                            Logger.d(status.isCreated() + " | " + status.isUpdated());
-
-                            Collection<Advice> adviceList = ar.getResponses();
-                            for (Advice a : adviceList) {
-                                a.setAdviceRequest(ar);
-                                status = daoAdv.createOrUpdate(a);
-                                Logger.d(status.isCreated() + " | " + status.isUpdated());
-                            }
-
-                            Logger.dump(ar);
-                        } catch (SQLException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                },
-                new Response.ErrorListener() {
+                responseHandler,
+                new APIRequest.ErrorHandler() {
                     @Override
                     public void onErrorResponse(VolleyError volleyError) {
-                        Logger.d(volleyError.toString());
+                        Logger.dump(volleyError);
                     }
                 }
         );
 
-        apiRequest.setPath("advicerequest");
-
         RequestManager.getRequestQueue().add(apiRequest);
+    }
+
+
+    public static enum Action {
+        HELPFUL,
+        THANKYOU
     }
 
 }

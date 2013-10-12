@@ -15,7 +15,6 @@ import com.buggycoder.domo.lib.JsonManager;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -30,98 +29,73 @@ public class APIRequest<E extends APIResponse<?>> extends Request<E> {
     private static final String PROTOCOL_CONTENT_TYPE =
             String.format("application/json; charset=%s", PROTOCOL_CHARSET);
     private final JsonNode mRequestBody;
-    private final Response.Listener<E> mListener;
-    private Class mClass;
-    private ObjectMapper mapper;
-    private List<String> path;
-    private boolean mMapToCollection;
+    ResponseHandler responseHandler;
+    ErrorHandler errorHandler;
 
-
-    public <T> APIRequest(int method,
-                          String url,
-                          JsonNode requestBody,
-                          Class<T> responseType,
-                          boolean mapToCollection,
-                          Response.Listener<E> listener,
-                          Response.ErrorListener errorListener, boolean strict) {
-
-        super(method, url, getErrorListener(responseType, mapToCollection, listener, errorListener));
-
-        mListener = listener;
+    public APIRequest(int method,
+                      String url,
+                      JsonNode requestBody,
+                      ResponseHandler<E> rp,
+                      ErrorHandler ep) {
+        super(method, url, newErrorListener(rp, ep));
+        responseHandler = rp;
+        errorHandler = ep;
         mRequestBody = requestBody;
-        mClass = responseType;
-        mMapToCollection = mapToCollection;
-        mapper = strict ? JsonManager.getMapper() : JsonManager.getUnsafeMapper();
     }
 
-    public <T> APIRequest(int method,
-                          String url,
-                          JsonNode requestBody,
-                          Class<T> responseType,
-                          Response.Listener<E> listener,
-                          Response.ErrorListener errorListener
-    ) {
-        this(method, url, requestBody, responseType, false, listener, errorListener, false);
-    }
+    private static <T> Response.ErrorListener newErrorListener(final ResponseHandler responseHandler, final ErrorHandler errorHandler) {
+        return new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError volleyError) {
 
-    public <T> APIRequest(int method,
-                          String url,
-                          JsonNode requestBody,
-                          Class<T> responseType,
-                          boolean mapToCollection,
-                          Response.Listener<E> listener,
-                          Response.ErrorListener errorListener
-    ) {
-        this(method, url, requestBody, responseType, mapToCollection, listener, errorListener, false);
+                APIResponse apiResponse;
+
+                if (responseHandler.isMapToCollection()) {
+                    apiResponse = new APIResponseCollection<T>();
+                } else {
+                    apiResponse = new APIResponse<T>();
+                }
+
+                if (volleyError instanceof ServerError) {
+                    try {
+                        JsonNode jsonRes = JsonManager.getUnsafeMapper().readTree(volleyError.networkResponse.data);
+                        errorHandler.processError(jsonRes, apiResponse);
+                        responseHandler.onResponse(apiResponse);
+                        return;
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    } catch (ClassCastException e) {
+                        e.printStackTrace();
+                        throw e;
+                    }
+
+                } else if (volleyError instanceof TimeoutError || volleyError instanceof NoConnectionError) {
+                    apiResponse.hasError = true;
+                    List<String> errors = new ArrayList();
+                    errors.add((volleyError instanceof TimeoutError) ? "Network timed out" : "No connectivity");
+                    apiResponse.errors = errors;
+                }
+
+                errorHandler.onErrorResponse(volleyError);
+            }
+        };
     }
 
     @Override
     protected void deliverResponse(E response) {
-        mListener.onResponse(response);
+        responseHandler.onResponse(response);
     }
 
     @Override
     protected Response<E> parseNetworkResponse(NetworkResponse response) {
         try {
-            E result = (E) parseResponse(response.data, mapper, path, mMapToCollection, mClass);
+            E result = (E) responseHandler.processResponse(response.data, errorHandler);
             return Response.success(result, getCacheEntry());
         } catch (IOException e) {
             VolleyLog.d("IOException %s", e.getMessage());
             Response.error(new VolleyError(e));
         }
         return null;
-    }
-
-    private static <T> APIResponse parseResponse(byte[] responseBody, ObjectMapper mapper, List<String> path, boolean mapToCollection, Class<T> clazz) throws IOException {
-        JsonNode jsonRes = mapper.readTree(responseBody);
-        JsonNode response = jsonRes.path("response");
-
-        if (path != null) {
-            Iterator<String> itrPath = path.iterator();
-            String subPath;
-            while (itrPath.hasNext()) {
-                subPath = itrPath.next();
-                if (response.path(subPath).isMissingNode()) {
-                    throw new IOException("Incorrect path (" + subPath + "): " + path.toString());
-                }
-                response = response.path(subPath);
-            }
-        }
-
-        APIResponse apiResponse;
-
-        if (mapToCollection) {
-            apiResponse = new APIResponseCollection<T>();
-            JavaType type = mapper.getTypeFactory().constructCollectionType(List.class, clazz);
-            apiResponse.setResponse(mapper.convertValue(response, type));
-        } else {
-            apiResponse = new APIResponse<T>();
-            apiResponse.setResponse(mapper.convertValue(response, clazz));
-        }
-
-        parseMetaAndErrors(jsonRes, apiResponse);
-
-        return apiResponse;
     }
 
     @Override
@@ -140,67 +114,119 @@ public class APIRequest<E extends APIResponse<?>> extends Request<E> {
         }
     }
 
-    public void setPath(String path) {
-        if (path == null) {
-            return;
+    public static abstract class ResponseHandler<E extends APIResponse<?>> implements Response.Listener<E> {
+        private Class responseType;
+        private boolean mapToCollection;
+        private List<String> path;
+
+        public ResponseHandler(Class rt, boolean mp) {
+            responseType = rt;
+            mapToCollection = mp;
         }
-        this.path = Arrays.asList(path.split("\\."));
-    }
 
+        public Class getResponseType() {
+            return responseType;
+        }
 
-    private static void parseMetaAndErrors(JsonNode jsonRes, APIResponse apiResponse) {
+        public void setResponseType(Class responseType) {
+            this.responseType = responseType;
+        }
 
-        apiResponse.meta = jsonRes.path("meta");
-        apiResponse.rawResponse = jsonRes;
+        public boolean isMapToCollection() {
+            return mapToCollection;
+        }
 
-        JsonNode statusCode = jsonRes.path("meta").path("statusCode");
-        apiResponse.hasError = (!statusCode.isMissingNode() && statusCode.asInt() >= 400);
+        public void setMapToCollection(boolean mapToCollection) {
+            this.mapToCollection = mapToCollection;
+        }
 
-        if (!jsonRes.path("errors").isMissingNode()) {
-            ArrayNode errors = (ArrayNode) jsonRes.path("errors");
-            if (errors != null && errors.isArray() && errors.size() > 0) {
-                apiResponse.hasError = true;
-                apiResponse.errors = new ArrayList<String>();
-
-                Iterator<JsonNode> errElems = errors.elements();
-                while (errElems.hasNext()) {
-                    apiResponse.errors.add(errElems.next().asText());
-                }
+        public void setPath(String path) {
+            if (path == null) {
+                return;
             }
+            this.path = Arrays.asList(path.split("\\."));
         }
-    }
 
-    private static <S> Response.ErrorListener getErrorListener(Class<S> responseType, final boolean mapToCollection, final Response.Listener listener, final Response.ErrorListener errorListener) {
-        return new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError volleyError) {
-
-                APIResponse apiResponse;
-
-                if (mapToCollection) {
-                    apiResponse = new APIResponseCollection<S>();
-                } else {
-                    apiResponse = new APIResponse<S>();
-                }
-
-                if (volleyError instanceof ServerError) {
-                    try {
-                        JsonNode jsonRes = JsonManager.getUnsafeMapper().readTree(volleyError.networkResponse.data);
-                        parseMetaAndErrors(jsonRes, apiResponse);
-                        listener.onResponse(apiResponse);
-                        return;
-                    } catch (IOException e) {
-                        e.printStackTrace();
+        public JsonNode getResponseNode(JsonNode jsonRes) throws IOException {
+            JsonNode response = jsonRes;
+            if (path != null) {
+                Iterator<String> itrPath = path.iterator();
+                String subPath;
+                while (itrPath.hasNext()) {
+                    subPath = itrPath.next();
+                    if (response.path(subPath).isMissingNode()) {
+                        throw new IOException("Incorrect path (" + subPath + "): " + path.toString());
                     }
-                } else if (volleyError instanceof TimeoutError || volleyError instanceof NoConnectionError) {
-                    apiResponse.hasError = true;
-                    List<String> errors = new ArrayList();
-                    errors.add((volleyError instanceof TimeoutError) ? "Network timed out" : "No connectivity");
-                    apiResponse.errors = errors;
+                    response = response.path(subPath);
                 }
-
-                errorListener.onErrorResponse(volleyError);
             }
-        };
+            return response;
+        }
+
+        public <T> APIResponse processResponse(byte[] responseBody, ErrorHandler errorHandler) throws IOException {
+            ObjectMapper mapper = JsonManager.getUnsafeMapper();
+            JsonNode jsonRes = mapper.readTree(responseBody);
+            JsonNode response = getResponseNode(jsonRes);
+
+            APIResponse apiResponse;
+
+            if (isMapToCollection()) {
+                apiResponse = new APIResponseCollection<T>();
+                JavaType type = mapper.getTypeFactory().constructCollectionType(List.class, getResponseType());
+                apiResponse.setResponse(mapper.convertValue(response, type));
+            } else {
+                apiResponse = new APIResponse<T>();
+                apiResponse.setResponse(mapper.convertValue(response, getResponseType()));
+            }
+
+            errorHandler.processError(jsonRes, apiResponse);
+            return apiResponse;
+        }
+    }
+
+    public static abstract class ErrorHandler<E extends APIResponse<?>> implements Response.ErrorListener {
+
+        public void processError(JsonNode jsonRes, E apiResponse) {
+
+            apiResponse.rawResponse = jsonRes;
+
+            if (apiResponse.errors != null && apiResponse.errors.size() > 0) {
+                // errors already parsed by subclass. skip parsing.
+                return;
+            }
+
+            JsonNode jsonStatus = jsonRes.path("status");
+            if (jsonStatus.isMissingNode()) {
+                return;
+            }
+
+            String status = jsonStatus.asText();
+            if (status.equals("OK")) {
+                return;
+            }
+
+            apiResponse.errors = new ArrayList<String>();
+            apiResponse.errors.add(status);
+        }
+
     }
 }
+
+//        apiResponse.meta = jsonRes.path("meta");
+//        apiResponse.rawResponse = jsonRes;
+//
+//        JsonNode statusCode = jsonRes.path("meta").path("statusCode");
+//        apiResponse.hasError = (!statusCode.isMissingNode() && statusCode.asInt() >= 400);
+//
+//        if (!jsonRes.path("errors").isMissingNode()) {
+//            ArrayNode errors = (ArrayNode) jsonRes.path("errors");
+//            if (errors != null && errors.isArray() && errors.size() > 0) {
+//                apiResponse.hasError = true;
+//                apiResponse.errors = new ArrayList<String>();
+//
+//                Iterator<JsonNode> errElems = errors.elements();
+//                while (errElems.hasNext()) {
+//                    apiResponse.errors.add(errElems.next().asText());
+//                }
+//            }
+//        }

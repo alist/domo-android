@@ -37,6 +37,11 @@ public class Logger {
     }
 
     public static void dump(Object o) {
+        if (o == null) {
+            Logger.d("Logger.dump: null");
+            return;
+        }
+
         try {
             Logger.d(o.getClass().getSimpleName() + " | " + JsonManager.getUnsafeMapper().writeValueAsString(o));
         } catch (Exception e) {
