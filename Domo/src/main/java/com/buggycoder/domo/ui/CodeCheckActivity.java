@@ -5,7 +5,8 @@ import android.view.Window;
 import android.widget.FrameLayout;
 
 import com.buggycoder.domo.R;
-import com.buggycoder.domo.api.request.OrganizationAPI;
+import com.buggycoder.domo.api.OrganizationAPI;
+import com.buggycoder.domo.app.Config;
 import com.buggycoder.domo.events.OrganizationEvents;
 import com.buggycoder.domo.ui.base.BaseFragmentActivity;
 import com.buggycoder.domo.ui.fragment.CodeCheckFragment;
@@ -17,6 +18,7 @@ import com.buggycoder.domo.ui.fragment.WaitFragment_;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Background;
+import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.ViewById;
 import org.androidannotations.annotations.WindowFeature;
@@ -32,6 +34,9 @@ public class CodeCheckActivity extends BaseFragmentActivity {
     @ViewById
     FrameLayout fragmentContainer;
 
+    @Bean
+    Config config;
+
     @AfterViews
     protected void afterViews() {
         WaitFragment waitFragment = new WaitFragment_();
@@ -42,7 +47,7 @@ public class CodeCheckActivity extends BaseFragmentActivity {
 
     @Background
     protected void fetchOrganizations() {
-        OrganizationAPI.getOrganizations();
+        OrganizationAPI.getOrganizations(config);
     }
 
     protected void onEventMainThread(OrganizationEvents.GetOrganizationsResult o) {

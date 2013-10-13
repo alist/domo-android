@@ -2,7 +2,6 @@ package com.buggycoder.domo.app;
 
 import android.app.Application;
 
-import com.buggycoder.domo.lib.Config;
 import com.buggycoder.domo.lib.Logger;
 
 import org.androidannotations.annotations.AfterInject;

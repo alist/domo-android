@@ -8,13 +8,15 @@ import android.widget.TextView;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.buggycoder.domo.R;
-import com.buggycoder.domo.api.request.SupporteeAPI;
+import com.buggycoder.domo.api.SupporteeAPI;
+import com.buggycoder.domo.app.Config;
 import com.buggycoder.domo.events.SupporteeEvents;
 import com.buggycoder.domo.lib.Logger;
 import com.buggycoder.domo.ui.base.BaseFragmentActivity;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Background;
+import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.ViewById;
 import org.androidannotations.annotations.WindowFeature;
@@ -41,6 +43,9 @@ public class GetAdviceActivity extends BaseFragmentActivity {
 
     @ViewById
     EditText etQuery;
+
+    @Bean
+    Config config;
 
     String orgURL, orgCode;
 
@@ -84,7 +89,7 @@ public class GetAdviceActivity extends BaseFragmentActivity {
     protected void newAdviceRequest() {
         try {
             Logger.d("newAdviceRequest");
-            SupporteeAPI.newAdviceRequest(orgURL, orgCode, etQuery.getText().toString());
+            SupporteeAPI.newAdviceRequest(config, orgURL, orgCode, etQuery.getText().toString());
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }

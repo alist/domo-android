@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="api_root">http://buggycoder.com:4000/api/v1</string>
+</resources>

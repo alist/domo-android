@@ -14,6 +14,16 @@
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
 
+    <!-- PUSH -->
+    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
+
+    <permission
+        android:name="com.buggycoder.domo.permission.C2D_MESSAGE"
+        android:protectionLevel="signature" />
+    <uses-permission android:name="com.buggycoder.domo.permission.C2D_MESSAGE" />
+    <!-- /PUSH -->
 
     <application
         android:name="com.buggycoder.domo.app.MainApplication_"
@@ -24,11 +34,7 @@
         <activity
             android:name=".ui.SplashActivity_"
             android:label="@string/app_name">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
         <activity
             android:name=".ui.CodeCheckActivity_"
@@ -38,13 +44,32 @@
             android:label="@string/app_name" />
         <activity
             android:name=".ui.TestActivity_"
-            android:label="@string/app_name" />
+            android:label="@string/app_name">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
 
         <receiver android:name="com.buggycoder.domo.receiver.ConnChangeReceiver">
             <intent-filter>
                 <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
             </intent-filter>
         </receiver>
+
+        <!-- PUSH -->
+        <receiver
+            android:name=".push.GcmBroadcastReceiver"
+            android:permission="com.google.android.c2dm.permission.SEND">
+            <intent-filter>
+                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+                <category android:name="com.buggycoder.domo" />
+            </intent-filter>
+        </receiver>
+        <service android:name=".push.GcmIntentService" />
+        <!-- /PUSH -->
+
     </application>
 
 </manifest>

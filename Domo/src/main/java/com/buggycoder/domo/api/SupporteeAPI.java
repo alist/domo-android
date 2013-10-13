@@ -1,10 +1,12 @@
-package com.buggycoder.domo.api.request;
+package com.buggycoder.domo.api;
 
 import com.android.volley.Request;
 import com.android.volley.VolleyError;
+import com.buggycoder.domo.api.request.APIRequest;
 import com.buggycoder.domo.api.response.APIResponse;
 import com.buggycoder.domo.api.response.Advice;
 import com.buggycoder.domo.api.response.AdviceRequest;
+import com.buggycoder.domo.app.Config;
 import com.buggycoder.domo.db.DatabaseHelper;
 import com.buggycoder.domo.events.SupporteeEvents;
 import com.buggycoder.domo.lib.JsonManager;
@@ -24,11 +26,9 @@ import java.util.Collection;
  */
 public class SupporteeAPI {
 
-    static final String API_ROOT = "http://buggycoder.com:4000/api/v1/organizations/%s/advicerequest";
+    public static void newAdviceRequest(Config config, String orgURL, String orgCode, String adviceRequest) throws UnsupportedEncodingException {
 
-    public static void newAdviceRequest(String orgURL, String orgCode, String adviceRequest) throws UnsupportedEncodingException {
-
-        String url = String.format(API_ROOT, orgURL) + "?code=" + URLEncoder.encode(orgCode, APIRequest.PROTOCOL_CHARSET);
+        String url = config.getSupporteeApi(orgURL) + "?code=" + URLEncoder.encode(orgCode, APIRequest.PROTOCOL_CHARSET);
         Logger.d(url);
 
         ObjectNode reqBody = JsonManager.getMapper().createObjectNode();
@@ -81,9 +81,9 @@ public class SupporteeAPI {
 
     ;
 
-    public static void fetchAdviceRequest(String orgURL, String orgCode, String advicerequestId, String token) throws UnsupportedEncodingException {
+    public static void fetchAdviceRequest(Config config, String orgURL, String orgCode, String advicerequestId, String token) throws UnsupportedEncodingException {
 
-        String url = String.format(API_ROOT, orgURL) + "/" + advicerequestId
+        String url = config.getSupporteeApi(orgURL) + "/" + advicerequestId
                 + "?code=" + URLEncoder.encode(orgCode, APIRequest.PROTOCOL_CHARSET)
                 + "&token=" + URLEncoder.encode(token, APIRequest.PROTOCOL_CHARSET);
 
@@ -140,7 +140,7 @@ public class SupporteeAPI {
         RequestManager.getRequestQueue().add(apiRequest);
     }
 
-    public static void markAdviceAttr(String orgURL, String orgCode, String advicerequestId, String adviceId, String token, Action action, int score) throws UnsupportedEncodingException {
+    public static void markAdviceAttr(Config config, String orgURL, String orgCode, String advicerequestId, String adviceId, String token, Action action, int score) throws UnsupportedEncodingException {
 
         String reqBodyAttr, reqURLFrag;
 
@@ -157,7 +157,7 @@ public class SupporteeAPI {
         ObjectNode reqBody = JsonManager.getMapper().createObjectNode();
         reqBody.put(reqBodyAttr, score);
 
-        String url = String.format(API_ROOT, orgURL) + "/" + advicerequestId + "/advice/" + adviceId + "/" + reqURLFrag
+        String url = config.getSupporteeApi(orgURL) + "/" + advicerequestId + "/advice/" + adviceId + "/" + reqURLFrag
                 + "?code=" + URLEncoder.encode(orgCode, APIRequest.PROTOCOL_CHARSET)
                 + "&token=" + URLEncoder.encode(token, APIRequest.PROTOCOL_CHARSET);
 

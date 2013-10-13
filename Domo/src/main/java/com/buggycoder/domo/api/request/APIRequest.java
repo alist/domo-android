@@ -12,9 +12,11 @@ import com.android.volley.VolleyLog;
 import com.buggycoder.domo.api.response.APIResponse;
 import com.buggycoder.domo.api.response.APIResponseCollection;
 import com.buggycoder.domo.lib.JsonManager;
+import com.buggycoder.domo.lib.Logger;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -59,6 +61,7 @@ public class APIRequest<E extends APIResponse<?>> extends Request<E> {
                 if (volleyError instanceof ServerError) {
                     try {
                         JsonNode jsonRes = JsonManager.getUnsafeMapper().readTree(volleyError.networkResponse.data);
+                        Logger.d("Response: " + jsonRes.toString());
                         errorHandler.processError(jsonRes, apiResponse);
                         responseHandler.onResponse(apiResponse);
                         return;
@@ -195,38 +198,25 @@ public class APIRequest<E extends APIResponse<?>> extends Request<E> {
                 return;
             }
 
-            JsonNode jsonStatus = jsonRes.path("status");
-            if (jsonStatus.isMissingNode()) {
-                return;
-            }
+            apiResponse.meta = jsonRes.path("meta");
+            apiResponse.rawResponse = jsonRes;
 
-            String status = jsonStatus.asText();
-            if (status.equals("OK")) {
-                return;
-            }
+            JsonNode statusCode = jsonRes.path("meta").path("statusCode");
+            apiResponse.hasError = (!statusCode.isMissingNode() && statusCode.asInt() >= 400);
 
-            apiResponse.errors = new ArrayList<String>();
-            apiResponse.errors.add(status);
+            if (!jsonRes.path("errors").isMissingNode()) {
+                ArrayNode errors = (ArrayNode) jsonRes.path("errors");
+                if (errors != null && errors.isArray() && errors.size() > 0) {
+                    apiResponse.hasError = true;
+                    apiResponse.errors = new ArrayList<String>();
+
+                    Iterator<JsonNode> errElems = errors.elements();
+                    while (errElems.hasNext()) {
+                        apiResponse.errors.add(errElems.next().asText());
+                    }
+                }
+            }
         }
 
     }
 }
-
-//        apiResponse.meta = jsonRes.path("meta");
-//        apiResponse.rawResponse = jsonRes;
-//
-//        JsonNode statusCode = jsonRes.path("meta").path("statusCode");
-//        apiResponse.hasError = (!statusCode.isMissingNode() && statusCode.asInt() >= 400);
-//
-//        if (!jsonRes.path("errors").isMissingNode()) {
-//            ArrayNode errors = (ArrayNode) jsonRes.path("errors");
-//            if (errors != null && errors.isArray() && errors.size() > 0) {
-//                apiResponse.hasError = true;
-//                apiResponse.errors = new ArrayList<String>();
-//
-//                Iterator<JsonNode> errElems = errors.elements();
-//                while (errElems.hasNext()) {
-//                    apiResponse.errors.add(errElems.next().asText());
-//                }
-//            }
-//        }

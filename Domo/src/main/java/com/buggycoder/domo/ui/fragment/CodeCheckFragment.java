@@ -13,9 +13,10 @@ import android.widget.EditText;
 import android.widget.FilterQueryProvider;
 
 import com.buggycoder.domo.R;
-import com.buggycoder.domo.api.request.OrganizationAPI;
+import com.buggycoder.domo.api.OrganizationAPI;
 import com.buggycoder.domo.api.response.MyOrganization;
 import com.buggycoder.domo.api.response.Organization;
+import com.buggycoder.domo.app.Config;
 import com.buggycoder.domo.db.DatabaseHelper;
 import com.buggycoder.domo.events.OrganizationEvents;
 import com.buggycoder.domo.lib.Logger;
@@ -29,6 +30,7 @@ import com.j256.ormlite.stmt.QueryBuilder;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Background;
+import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.ViewById;
 
@@ -55,6 +57,10 @@ public class CodeCheckFragment extends BaseFragment {
     String selOrgURL = null;
     Cursor cursor = null;
     CloseableIterator<Organization> iterator = null;
+
+    @Bean
+    Config config;
+
 
     @AfterViews
     protected void afterViews() {
@@ -117,7 +123,7 @@ public class CodeCheckFragment extends BaseFragment {
     @Background
     protected void checkOrgCode(String orgURL, String orgCode) {
         try {
-            OrganizationAPI.checkCode(orgURL, orgCode);
+            OrganizationAPI.checkCode(config, orgURL, orgCode);
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }

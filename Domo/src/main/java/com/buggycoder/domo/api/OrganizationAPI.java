@@ -1,11 +1,13 @@
-package com.buggycoder.domo.api.request;
+package com.buggycoder.domo.api;
 
 import com.android.volley.Request;
 import com.android.volley.VolleyError;
+import com.buggycoder.domo.api.request.APIRequest;
 import com.buggycoder.domo.api.response.APIResponse;
 import com.buggycoder.domo.api.response.APIResponseCollection;
 import com.buggycoder.domo.api.response.MyOrganization;
 import com.buggycoder.domo.api.response.Organization;
+import com.buggycoder.domo.app.Config;
 import com.buggycoder.domo.db.DatabaseHelper;
 import com.buggycoder.domo.events.OrganizationEvents;
 import com.buggycoder.domo.lib.Logger;
@@ -22,9 +24,7 @@ import java.sql.SQLException;
  */
 public class OrganizationAPI {
 
-    static final String API_ROOT = "http://buggycoder.com:4000/api/v1/organizations/";
-
-    public static void getOrganizations() {
+    public static void getOrganizations(Config config) {
 
         APIRequest.ResponseHandler responseHandler = new APIRequest.ResponseHandler<APIResponseCollection<Organization>>(Organization.class, true) {
             @Override
@@ -58,7 +58,7 @@ public class OrganizationAPI {
 
         APIRequest apiRequest = new APIRequest<APIResponseCollection<Organization>>(
                 Request.Method.GET,
-                API_ROOT,
+                config.getOrganizationsApi(),
                 null,
                 responseHandler,
                 new APIRequest.ErrorHandler() {
@@ -73,7 +73,7 @@ public class OrganizationAPI {
         RequestManager.getRequestQueue().add(apiRequest);
     }
 
-    public static void getOrganization(String orgURL) {
+    public static void getOrganization(Config config, String orgURL) {
 
         APIRequest.ResponseHandler responseHandler = new APIRequest.ResponseHandler<APIResponse<Organization>>(Organization.class, false) {
             @Override
@@ -104,7 +104,7 @@ public class OrganizationAPI {
 
         APIRequest apiRequest = new APIRequest<APIResponse<Organization>>(
                 Request.Method.GET,
-                API_ROOT + orgURL,
+                config.getOrganizationsApi() + orgURL,
                 null,
                 responseHandler,
                 new APIRequest.ErrorHandler() {
@@ -118,7 +118,7 @@ public class OrganizationAPI {
         RequestManager.getRequestQueue().add(apiRequest);
     }
 
-    public static void checkCode(String orgURL, String orgCode) throws UnsupportedEncodingException {
+    public static void checkCode(Config config, String orgURL, String orgCode) throws UnsupportedEncodingException {
 
         APIRequest.ResponseHandler responseHandler = new APIRequest.ResponseHandler<APIResponse<MyOrganization>>(MyOrganization.class, false) {
             @Override
@@ -152,7 +152,7 @@ public class OrganizationAPI {
 
         APIRequest apiRequest = new APIRequest<APIResponse<MyOrganization>>(
                 Request.Method.GET,
-                API_ROOT + orgURL + "/codecheck?code=" + URLEncoder.encode(orgCode, APIRequest.PROTOCOL_CHARSET),
+                config.getOrganizationsApi() + orgURL + "/codecheck?code=" + URLEncoder.encode(orgCode, APIRequest.PROTOCOL_CHARSET),
                 null,
                 responseHandler,
                 new APIRequest.ErrorHandler() {
