@@ -6,13 +6,32 @@
     -->
     <style name="AppBaseTheme" parent="Theme.Sherlock.Light">
         <!-- API 11 theme customizations can go here. -->
-        <item name="actionBarStyle">@style/Widget.Styled.ActionBar</item>
-        <item name="android:actionBarStyle">@style/Widget.Styled.ActionBar</item>
-    </style>
+        <item name="windowContentOverlay">@null</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="actionBarItemBackground">@drawable/selectable_background_gen</item>
+        <item name="popupMenuStyle">@style/PopupMenu.Gen</item>
+        <item name="dropDownListViewStyle">@style/DropDownListView.Gen</item>
+        <item name="actionBarTabStyle">@style/ActionBarTabStyle.Gen</item>
+        <item name="actionDropDownStyle">@style/DropDownNav.Gen</item>
+        <item name="actionBarStyle">@style/ActionBar.Transparent.Gen</item>
+        <item name="actionModeBackground">@drawable/cab_background_top_gen</item>
+        <item name="actionModeSplitBackground">@drawable/cab_background_bottom_gen</item>
+        <item name="actionModeCloseButtonStyle">@style/ActionButton.CloseMode.Gen</item>
 
-    <style name="Widget.Styled.ActionBar" parent="Widget.Sherlock.Light.ActionBar.Solid">
-        <item name="android:icon">@drawable/logo</item>
-        <item name="android:displayOptions">useLogo|showHome</item>
+        <item name="android:editTextBackground">@drawable/edit_text_holo_light</item>
+        <item name="android:autoCompleteTextViewStyle">@style/AutoCompleteTextViewAppTheme</item>
+        <item name="android:listChoiceIndicatorMultiple">@drawable/btn_check_holo_light</item>
+        <item name="android:buttonStyle">@style/ButtonAppTheme</item>
+        <item name="android:imageButtonStyle">@style/ImageButtonAppTheme</item>
+        <item name="android:dropDownSpinnerStyle">@style/SpinnerAppTheme.DropDown</item>
+        <item name="android:progressBarStyleHorizontal">@style/ProgressBarAppTheme</item>
+        <item name="android:ratingBarStyle">@style/RatingBarAppTheme</item>
+        <item name="android:ratingBarStyleIndicator">@style/RatingBarBigAppTheme</item>
+        <item name="android:ratingBarStyleSmall">@style/RatingBarSmallAppTheme</item>
+        <item name="android:buttonStyleToggle">@style/ToggleAppTheme</item>
+        <item name="android:listChoiceBackgroundIndicator">@drawable/list_selector_holo_light</item>
+        <item name="android:activatedBackgroundIndicator">@drawable/activated_background_holo_light</item>
+        <item name="android:fastScrollThumbDrawable">@drawable/fastscroll_thumb_holo</item>
     </style>
 
 </resources>

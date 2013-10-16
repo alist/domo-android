@@ -10,14 +10,43 @@
             res/values-vXX/styles.xml, while customizations related to
             backward-compatibility can go here.
         -->
+        <item name="windowContentOverlay">@null</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="actionBarItemBackground">@drawable/selectable_background_gen</item>
+        <item name="popupMenuStyle">@style/PopupMenu.Gen</item>
+        <item name="dropDownListViewStyle">@style/DropDownListView.Gen</item>
+        <item name="actionBarTabStyle">@style/ActionBarTabStyle.Gen</item>
+        <item name="actionDropDownStyle">@style/DropDownNav.Gen</item>
+        <item name="actionBarStyle">@style/ActionBar.Transparent.Gen</item>
+        <item name="actionModeBackground">@drawable/cab_background_top_gen</item>
+        <item name="actionModeSplitBackground">@drawable/cab_background_bottom_gen</item>
+        <item name="actionModeCloseButtonStyle">@style/ActionButton.CloseMode.Gen</item>
+
+        <item name="android:editTextStyle">@style/EditTextAppTheme</item>
+        <item name="android:autoCompleteTextViewStyle">@style/AutoCompleteTextViewAppTheme</item>
+        <item name="android:checkboxStyle">@style/CheckBoxAppTheme</item>
+        <item name="android:buttonStyle">@style/ButtonAppTheme</item>
+        <item name="android:imageButtonStyle">@style/ImageButtonAppTheme</item>
+        <item name="android:spinnerStyle">@style/SpinnerAppTheme</item>
+        <item name="android:spinnerDropDownItemStyle">@style/SpinnerDropDownItemAppTheme</item>
+        <item name="android:progressBarStyleHorizontal">@style/ProgressBarAppTheme</item>
+        <item name="android:ratingBarStyle">@style/RatingBarAppTheme</item>
+        <item name="android:ratingBarStyleIndicator">@style/RatingBarBigAppTheme</item>
+        <item name="android:ratingBarStyleSmall">@style/RatingBarSmallAppTheme</item>
+        <item name="android:buttonStyleToggle">@style/ToggleAppTheme</item>
+        <item name="android:listViewStyle">@style/ListViewAppTheme</item>
+        <item name="android:listViewWhiteStyle">@style/ListViewAppTheme.White</item>
+        <item name="android:spinnerItemStyle">@style/SpinnerItemAppTheme</item>
     </style>
 
     <!-- Application theme. -->
     <style name="AppTheme" parent="AppBaseTheme">
         <!-- All customizations that are NOT specific to a particular API-level can go here. -->
-        <!--<item name="android:windowNoTitle">true</item>-->
-
+        <!--<item name="android:windowBackground">@drawable/background</item>-->
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowTitleBackgroundStyle">@null</item>
     </style>
+
 
     <style name="activity">
         <item name="android:background">@drawable/background</item>
@@ -40,6 +69,12 @@
         <item name="android:paddingRight">18dip</item>
         <item name="android:paddingTop">10dip</item>
         <item name="android:paddingBottom">10dip</item>
+    </style>
+
+    <style name="CustomDialog" parent="Theme.Sherlock.Light.Dialog">
+        <!--<item name="android:backgroundDimEnabled">false</item>-->
+        <!--<item name="android:cacheColorHint">@android:color/transparent</item>-->
+        <!--<item name="android:windowBackground">@android:color/transparent</item>-->
     </style>
 
     <color name="domo_green">#00B147</color>

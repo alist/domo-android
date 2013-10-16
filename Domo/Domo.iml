@@ -82,6 +82,7 @@
     <orderEntry type="library" exported="" name="androidannotations-api-3.0-SNAPSHOT" level="project" />
     <orderEntry type="library" exported="" name="eventbus-2.1.0-beta-1" level="project" />
     <orderEntry type="library" exported="" name="ormlite-android-4.45" level="project" />
+    <orderEntry type="module" module-name="slidingmenu" />
   </component>
 </module>
 

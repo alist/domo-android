@@ -50,6 +50,7 @@ dependencies {
     }
 
     compile project(':libraries:actionbarsherlock')
+    compile project(':libraries:SlidingMenu:slidingmenu')
 
     compile files('libs/eventbus-2.1.0-beta-1.jar')
     compile files('libs/volley.jar')

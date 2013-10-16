@@ -43,7 +43,7 @@
             android:name=".ui.GetAdviceActivity_"
             android:label="@string/app_name" />
         <activity
-            android:name=".ui.TestActivity_"
+            android:name=".ui.HomeActivity_"
             android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -51,7 +51,15 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".ui.TestActivity_"
+            android:label="@string/app_name">
+            <!--<intent-filter>-->
+                <!--<action android:name="android.intent.action.MAIN" />-->
 
+                <!--<category android:name="android.intent.category.LAUNCHER" />-->
+            <!--</intent-filter>-->
+        </activity>
         <receiver android:name="com.buggycoder.domo.receiver.ConnChangeReceiver">
             <intent-filter>
                 <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
