@@ -2,6 +2,8 @@ package com.buggycoder.domo.api;
 
 import com.android.volley.Request;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.RequestFuture;
 import com.buggycoder.domo.api.request.APIRequest;
 import com.buggycoder.domo.api.response.APIResponse;
 import com.buggycoder.domo.api.response.APIResponseCollection;
@@ -10,19 +12,65 @@ import com.buggycoder.domo.api.response.Organization;
 import com.buggycoder.domo.app.Config;
 import com.buggycoder.domo.db.DatabaseHelper;
 import com.buggycoder.domo.events.OrganizationEvents;
+import com.buggycoder.domo.lib.JsonManager;
 import com.buggycoder.domo.lib.Logger;
 import com.buggycoder.domo.lib.PubSub;
 import com.buggycoder.domo.lib.RequestManager;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.j256.ormlite.dao.Dao;
 
+import org.json.JSONObject;
+
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.URL;
 import java.net.URLEncoder;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Created by shirish on 5/9/13.
  */
 public class OrganizationAPI {
+
+    public static List<Organization> filterOrganizations(Config config, String charSequence) throws UnsupportedEncodingException {
+        RequestFuture<JSONObject> future = RequestFuture.newFuture();
+        JsonObjectRequest request = new JsonObjectRequest(config.getOrganizationsApi() + "?q=" + URLEncoder.encode(charSequence, APIRequest.PROTOCOL_CHARSET), null, future, future) {
+            @Override
+            public String getBodyContentType() {
+                return APIRequest.PROTOCOL_CONTENT_TYPE;
+            }
+        };
+
+        RequestManager.getRequestQueue().add(request);
+
+        List<Organization> orgList = new ArrayList<Organization>();
+
+        try {
+            JSONObject response = future.get();
+            JsonNode jsonRes = JsonManager.getUnsafeMapper().readTree(response.toString());
+            APIRequest.ResponseHandler responseHandler = new APIRequest.ResponseHandler<APIResponseCollection<Organization>>(Organization.class, true) {
+                @Override
+                public void onResponse(APIResponseCollection<Organization> responseCollection) {
+                }
+            };
+            responseHandler.setPath("response.organizations");
+
+            APIResponseCollection<Organization> apiResponse = (APIResponseCollection<Organization>) responseHandler.processJson(jsonRes);
+            orgList = apiResponse.getResponse();
+
+            Logger.d("orgList.size: " + orgList.size());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return orgList;
+    }
+
 
     public static void getOrganizations(Config config) {
 

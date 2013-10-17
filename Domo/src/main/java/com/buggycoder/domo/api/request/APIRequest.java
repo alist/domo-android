@@ -28,7 +28,7 @@ import java.util.List;
 public class APIRequest<E extends APIResponse<?>> extends Request<E> {
 
     public static final String PROTOCOL_CHARSET = "utf-8";
-    private static final String PROTOCOL_CONTENT_TYPE =
+    public static final String PROTOCOL_CONTENT_TYPE =
             String.format("application/json; charset=%s", PROTOCOL_CHARSET);
     private final JsonNode mRequestBody;
     ResponseHandler responseHandler;
@@ -169,6 +169,14 @@ public class APIRequest<E extends APIResponse<?>> extends Request<E> {
         public <T> APIResponse processResponse(byte[] responseBody, ErrorHandler errorHandler) throws IOException {
             ObjectMapper mapper = JsonManager.getUnsafeMapper();
             JsonNode jsonRes = mapper.readTree(responseBody);
+            APIResponse apiResponse = processJson(jsonRes);
+            errorHandler.processError(jsonRes, apiResponse);
+            return apiResponse;
+        }
+
+
+        public <T> APIResponse processJson(JsonNode jsonRes) throws IOException {
+            ObjectMapper mapper = JsonManager.getUnsafeMapper();
             JsonNode response = getResponseNode(jsonRes);
 
             APIResponse apiResponse;
@@ -182,7 +190,6 @@ public class APIRequest<E extends APIResponse<?>> extends Request<E> {
                 apiResponse.setResponse(mapper.convertValue(response, getResponseType()));
             }
 
-            errorHandler.processError(jsonRes, apiResponse);
             return apiResponse;
         }
     }

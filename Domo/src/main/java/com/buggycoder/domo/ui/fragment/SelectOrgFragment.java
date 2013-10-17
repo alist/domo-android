@@ -6,7 +6,6 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.text.Editable;
-import android.text.TextWatcher;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -18,14 +17,13 @@ import android.widget.FilterQueryProvider;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.actionbarsherlock.app.SherlockDialogFragment;
 import com.buggycoder.domo.R;
 import com.buggycoder.domo.api.OrganizationAPI;
 import com.buggycoder.domo.api.response.Organization;
 import com.buggycoder.domo.app.Config;
 import com.buggycoder.domo.db.DatabaseHelper;
-import com.buggycoder.domo.lib.PubSub;
 import com.buggycoder.domo.lib.UIUtils;
+import com.buggycoder.domo.ui.adapter.AutoCompleteOrgAdapter;
 import com.buggycoder.domo.ui.base.BaseDialogFragment;
 import com.j256.ormlite.android.AndroidDatabaseResults;
 import com.j256.ormlite.dao.CloseableIterator;
@@ -42,8 +40,6 @@ import org.androidannotations.annotations.ViewById;
 
 import java.io.UnsupportedEncodingException;
 import java.sql.SQLException;
-
-import de.greenrobot.event.util.AsyncExecutor;
 
 /**
  * Created by shirish on 17/10/13.
@@ -213,72 +209,72 @@ public class SelectOrgFragment extends BaseDialogFragment {
 
 
     protected void setupOrgAutocomplete() {
-        Dao<Organization, String> orgDao = null;
-        QueryBuilder<Organization, String> qb = null;
+//        Dao<Organization, String> orgDao = null;
+//        QueryBuilder<Organization, String> qb = null;
+//
+//        try {
+//            orgDao = DatabaseHelper.getDaoManager().getDao(Organization.class);
+//            qb = orgDao.queryBuilder();
+//            qb.selectColumns("displayName", "orgURL").query();
+//            iterator = orgDao.iterator(qb.prepare());
+//            AndroidDatabaseResults results = (AndroidDatabaseResults) iterator.getRawResults();
+//            cursor = results.getRawCursor();
+//
+//        } catch (SQLException e) {
+//            e.printStackTrace();
+//        }
+//
+//        if (cursor == null) {
+//            return;
+//        }
+//
+//        SimpleCursorAdapter adapter = new SimpleCursorAdapter(
+//                getSherlockActivity(),
+//                R.layout.row_ac_org,
+//                cursor,
+//                new String[]{"displayName"},
+//                new int[]{R.id.text1}
+//        );
+//
+//        adapter.setCursorToStringConverter(new android.support.v4.widget.SimpleCursorAdapter.CursorToStringConverter() {
+//            @Override
+//            public CharSequence convertToString(Cursor cursor) {
+//                return cursor.getString(cursor.getColumnIndex("displayName"));
+//            }
+//        });
+//
+//        final QueryBuilder<Organization, String> finalQb = qb;
+//        final Dao<Organization, String> finalOrgDao = orgDao;
+//
+//        adapter.setFilterQueryProvider(new FilterQueryProvider() {
+//            @Override
+//            public Cursor runQuery(CharSequence nameFilter) {
+//
+//                try {
+//                    finalQb.selectColumns("displayName", "orgURL").where().like("displayName", "%" + nameFilter + "%");
+//                    iterator = finalOrgDao.iterator(finalQb.prepare());
+//                    AndroidDatabaseResults results = (AndroidDatabaseResults) iterator.getRawResults();
+//                    cursor = results.getRawCursor();
+//                } catch (SQLException e) {
+//                    e.printStackTrace();
+//                }
+//
+//                return cursor;
+//            }
+//        });
+//
+//        acOrgCode.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+//            @Override
+//            public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+//                Cursor selRow = (Cursor) adapterView.getItemAtPosition(position);
+//                selOrgDisplayName = selRow.getString(selRow.getColumnIndex("displayName"));
+//                selOrgURL = selRow.getString(selRow.getColumnIndex("orgURL"));
+//                isOrgSelected = true;
+//                validateOrgSel();
+//            }
+//        });
 
-        try {
-            orgDao = DatabaseHelper.getDaoManager().getDao(Organization.class);
-            qb = orgDao.queryBuilder();
-            qb.selectColumns("displayName", "orgURL").query();
-            iterator = orgDao.iterator(qb.prepare());
-            AndroidDatabaseResults results = (AndroidDatabaseResults) iterator.getRawResults();
-            cursor = results.getRawCursor();
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-        if (cursor == null) {
-            return;
-        }
-
-        SimpleCursorAdapter adapter = new SimpleCursorAdapter(
-                getSherlockActivity(),
-                R.layout.row_ac_org,
-                cursor,
-                new String[]{"displayName"},
-                new int[]{R.id.text1}
-        );
-
-        adapter.setCursorToStringConverter(new android.support.v4.widget.SimpleCursorAdapter.CursorToStringConverter() {
-            @Override
-            public CharSequence convertToString(Cursor cursor) {
-                return cursor.getString(cursor.getColumnIndex("displayName"));
-            }
-        });
-
-        final QueryBuilder<Organization, String> finalQb = qb;
-        final Dao<Organization, String> finalOrgDao = orgDao;
-
-        adapter.setFilterQueryProvider(new FilterQueryProvider() {
-            @Override
-            public Cursor runQuery(CharSequence nameFilter) {
-
-                try {
-                    finalQb.selectColumns("displayName", "orgURL").where().like("displayName", "%" + nameFilter + "%");
-                    iterator = finalOrgDao.iterator(finalQb.prepare());
-                    AndroidDatabaseResults results = (AndroidDatabaseResults) iterator.getRawResults();
-                    cursor = results.getRawCursor();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-
-                return cursor;
-            }
-        });
-
-        acOrgCode.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
-                Cursor selRow = (Cursor) adapterView.getItemAtPosition(position);
-                selOrgDisplayName = selRow.getString(selRow.getColumnIndex("displayName"));
-                selOrgURL = selRow.getString(selRow.getColumnIndex("orgURL"));
-                isOrgSelected = true;
-                validateOrgSel();
-            }
-        });
-
-        acOrgCode.setAdapter(adapter);
+        acOrgCode.setAdapter(new AutoCompleteOrgAdapter(getSherlockActivity(), config));
         acOrgCode.requestFocus();
     }
 

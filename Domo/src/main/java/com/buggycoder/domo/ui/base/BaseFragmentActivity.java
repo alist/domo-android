@@ -7,6 +7,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.buggycoder.domo.R;
@@ -38,6 +39,8 @@ public abstract class BaseFragmentActivity extends SherlockFragmentActivity {
 
     SlidingMenu menu = null;
     boolean useSlidingMenu = false;
+
+    Handler handler = new Handler();
 
     /**
      * @return Application's version code from the {@code PackageManager}.
@@ -271,15 +274,17 @@ public abstract class BaseFragmentActivity extends SherlockFragmentActivity {
         menu.setMenu(fragmentResId);
     }
 
+
+    protected void postToUi(Runnable r) {
+        handler.post(r);
+    }
+
     @Override
     public void onBackPressed() {
-        if(!useSlidingMenu) {
-            super.onBackPressed();
-            return;
-        }
-
-        if (menu != null && menu.isMenuShowing()) {
+        if (useSlidingMenu && menu != null && menu.isMenuShowing()) {
             menu.toggle();
+        } else {
+            super.onBackPressed();
         }
     }
 }
