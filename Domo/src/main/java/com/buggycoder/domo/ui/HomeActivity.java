@@ -1,6 +1,5 @@
 package com.buggycoder.domo.ui;
 
-import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
@@ -9,9 +8,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.buggycoder.domo.R;
-import com.buggycoder.domo.api.OrganizationAPI;
 import com.buggycoder.domo.api.response.MyOrganization;
-import com.buggycoder.domo.api.response.Organization;
 import com.buggycoder.domo.app.Config;
 import com.buggycoder.domo.db.DatabaseHelper;
 import com.buggycoder.domo.events.OrganizationEvents;
@@ -26,7 +23,6 @@ import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Background;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EActivity;
-import org.androidannotations.annotations.EBean;
 import org.androidannotations.annotations.SystemService;
 import org.androidannotations.annotations.ViewById;
 import org.androidannotations.annotations.WindowFeature;
@@ -62,7 +58,6 @@ public class HomeActivity extends BaseFragmentActivity {
     Config config;
 
     Dao<MyOrganization, String> myOrgDao = null;
-    Dao<Organization, String> orgDao = null;
 
     private static final String MSG_WAIT = "Please wait...";
     private static final String MSG_NO_COMM = "You have no communities.";
@@ -78,17 +73,12 @@ public class HomeActivity extends BaseFragmentActivity {
 
         try {
             myOrgDao = DatabaseHelper.getDaoManager().getDao(MyOrganization.class);
-            orgDao = DatabaseHelper.getDaoManager().getDao(Organization.class);
         } catch (SQLException e) {
             e.printStackTrace();
         }
 
-        checkLocalOrganizations();
-        fetchAllOrganizations();
-
         showMyOrganizations();
 
-        btnAddCommunity.setEnabled(false);
         btnAddCommunity.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -97,34 +87,6 @@ public class HomeActivity extends BaseFragmentActivity {
         });
     }
 
-    @Background
-    protected void checkLocalOrganizations() {
-        if(orgDao == null) {
-            return;
-        }
-
-        try {
-            final long orgCount = orgDao.countOf();
-            postToUi(new Runnable() {
-                @Override
-                public void run() {
-                    if(orgCount == 0) {
-                        btnAddCommunity.setEnabled(false);
-                    } else {
-                        btnAddCommunity.setEnabled(true);
-                    }
-                }
-            });
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-
-    @Background
-    protected void fetchAllOrganizations() {
-        OrganizationAPI.getOrganizations(config);
-    }
 
     protected SelectOrgFragment getSelOrgFragment() {
         SelectOrgFragment selOrgDialog = (SelectOrgFragment) getSupportFragmentManager().findFragmentByTag(TAG_FRAG_SELORG);
