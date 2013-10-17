@@ -1,6 +1,7 @@
 package com.buggycoder.domo.ui.fragment;
 
 import android.app.Dialog;
+import android.content.DialogInterface;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.widget.SimpleCursorAdapter;
@@ -23,36 +24,39 @@ import com.buggycoder.domo.api.OrganizationAPI;
 import com.buggycoder.domo.api.response.Organization;
 import com.buggycoder.domo.app.Config;
 import com.buggycoder.domo.db.DatabaseHelper;
+import com.buggycoder.domo.lib.PubSub;
 import com.buggycoder.domo.lib.UIUtils;
+import com.buggycoder.domo.ui.base.BaseDialogFragment;
 import com.j256.ormlite.android.AndroidDatabaseResults;
 import com.j256.ormlite.dao.CloseableIterator;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.stmt.QueryBuilder;
 
+import org.androidannotations.annotations.AfterTextChange;
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Background;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;
+import org.androidannotations.annotations.InstanceState;
 import org.androidannotations.annotations.ViewById;
 
 import java.io.UnsupportedEncodingException;
 import java.sql.SQLException;
+
+import de.greenrobot.event.util.AsyncExecutor;
 
 /**
  * Created by shirish on 17/10/13.
  */
 
 @EFragment(R.layout.dialog_sel_org)
-public class SelectOrgFragment extends SherlockDialogFragment {
+public class SelectOrgFragment extends BaseDialogFragment {
 
     @ViewById
     LinearLayout dialogContainer;
 
     @ViewById
     AutoCompleteTextView acOrgCode;
-
-    @ViewById
-    TextView tvOrgDisplayName;
 
     @ViewById
     Button btnAskCode, btnCheckCode;
@@ -63,15 +67,22 @@ public class SelectOrgFragment extends SherlockDialogFragment {
     @ViewById
     EditText etOrgCode;
 
+    @ViewById
+    TextView tvOrgDisplayName;
+
     @Bean
     Config config;
 
-    String selOrgURL = null;
-    String selOrgDisplayName = null;
-    boolean isOrgSelected = false;
+    @InstanceState
+    String selOrgURL = null, selOrgDisplayName = null;
+
+    @InstanceState
+    boolean isOrgSelected = false, isOrgSelComplete = false;
+
 
     Cursor cursor = null;
     CloseableIterator<Organization> iterator = null;
+
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -80,20 +91,30 @@ public class SelectOrgFragment extends SherlockDialogFragment {
         return dialog;
     }
 
+
     @AfterViews
     protected void afterViews() {
+
+        if(isOrgSelComplete) {
+            UIUtils.crossfade(formOrg, formCode, 100);
+            etOrgCode.requestFocus();
+            return;
+        }
+
         btnAskCode.setVisibility(View.GONE);
         btnCheckCode.setVisibility(View.GONE);
-
         formCode.setVisibility(View.GONE);
 
         setupOrgAutocomplete();
         acOrgCode.requestFocus();
         getDialog().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+
         btnAskCode.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                UIUtils.crossfade(formOrg, formCode, 250);
+                isOrgSelected = isOrgSelComplete = true;
+                validateOrgSel();
+                UIUtils.crossfade(formOrg, formCode, 200);
                 etOrgCode.requestFocus();
             }
         });
@@ -105,22 +126,66 @@ public class SelectOrgFragment extends SherlockDialogFragment {
             }
         });
 
-        etOrgCode.addTextChangedListener(new TextWatcher() {
+        tvOrgDisplayName.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i2, int i3) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i2, int i3) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-                validateOrgCode();
+            public void onClick(View view) {
+                backToOrgSel();
             }
         });
+
+    }
+
+
+    @AfterTextChange(R.id.etOrgCode)
+    void onTextChangeOrgCode(Editable text, TextView etOrgCode) {
+        if (etOrgCode.length() > 3) {
+            btnCheckCode.setVisibility(View.VISIBLE);
+        } else {
+            btnCheckCode.setVisibility(View.GONE);
+        }
+    }
+
+
+    @AfterTextChange(R.id.acOrgCode)
+    void onTextChangeOrgName(Editable editable, TextView orgCode) {
+
+        final String newText = editable.toString();
+        if(newText == null || selOrgDisplayName == null) {
+            return;
+        }
+
+        if(newText.equalsIgnoreCase(selOrgDisplayName)) {
+            isOrgSelected = true;
+        } else {
+            isOrgSelected = false;
+        }
+
+        validateOrgSel();
+    }
+
+    public void backToOrgSel() {
+        tvOrgDisplayName.setText("");
+        etOrgCode.setText("");
+        isOrgSelComplete = false;
+        UIUtils.crossfade(formCode, formOrg, 200);
+    }
+
+    public void resetOrgSel() {
+        selOrgDisplayName = selOrgURL = null;
+        acOrgCode.setText("");
+        isOrgSelected = false;
+        backToOrgSel();
+    }
+
+
+    protected void validateOrgSel() {
+        if(isOrgSelected) {
+            tvOrgDisplayName.setText(selOrgDisplayName);
+            btnAskCode.setVisibility(View.VISIBLE);
+        } else {
+            tvOrgDisplayName.setText("");
+            btnAskCode.setVisibility(View.GONE);
+        }
     }
 
 
@@ -131,6 +196,13 @@ public class SelectOrgFragment extends SherlockDialogFragment {
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
+    }
+
+
+    @Override
+    public void onDismiss(DialogInterface dialog) {
+        resetOrgSel();
+        super.onDismiss(dialog);
     }
 
     @Override
@@ -195,34 +267,6 @@ public class SelectOrgFragment extends SherlockDialogFragment {
             }
         });
 
-        acOrgCode.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i2, int i3) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i2, int i3) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-                final String newText = editable.toString();
-                if(newText == null || selOrgDisplayName == null) {
-                    return;
-                }
-
-                if(newText.equalsIgnoreCase(selOrgDisplayName)) {
-                    isOrgSelected = true;
-                } else {
-                    isOrgSelected = false;
-                }
-
-                validateOrgSel();
-            }
-        });
-
         acOrgCode.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
@@ -238,23 +282,6 @@ public class SelectOrgFragment extends SherlockDialogFragment {
         acOrgCode.requestFocus();
     }
 
-    protected void validateOrgSel() {
-        if(isOrgSelected) {
-            tvOrgDisplayName.setText(selOrgDisplayName);
-            btnAskCode.setVisibility(View.VISIBLE);
-        } else {
-            tvOrgDisplayName.setText("");
-            btnAskCode.setVisibility(View.GONE);
-        }
-    }
-
-    protected void validateOrgCode() {
-        if (etOrgCode.length() == 0) {
-            btnCheckCode.setVisibility(View.GONE);
-        } else {
-            btnCheckCode.setVisibility(View.VISIBLE);
-        }
-    }
 
     protected void cleanup() {
         try {
@@ -269,4 +296,7 @@ public class SelectOrgFragment extends SherlockDialogFragment {
         }
     }
 
+    public boolean isOrgSelComplete() {
+        return isOrgSelComplete;
+    }
 }

@@ -9,6 +9,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.buggycoder.domo.R;
 import com.buggycoder.domo.api.PushAPI;
 import com.buggycoder.domo.app.Config;
 import com.buggycoder.domo.app.Config_;
@@ -18,6 +19,7 @@ import com.buggycoder.domo.lib.PubSub;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
+import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -33,6 +35,9 @@ public abstract class BaseFragmentActivity extends SherlockFragmentActivity {
     String SENDER_ID = "868406809590";
     GoogleCloudMessaging gcm;
     String regid;
+
+    SlidingMenu menu = null;
+    boolean useSlidingMenu = false;
 
     /**
      * @return Application's version code from the {@code PackageManager}.
@@ -248,5 +253,33 @@ public abstract class BaseFragmentActivity extends SherlockFragmentActivity {
         editor.putString("reg-id", regId);
         editor.putInt("app-ver", appVersion);
         editor.commit();
+    }
+
+
+    protected void setSlidingMenu(int fragmentResId, int menuSide) {
+        useSlidingMenu = true;
+
+        // configure the SlidingMenu
+        menu = new SlidingMenu(this);
+        menu.setMode(menuSide);
+        menu.setTouchModeAbove(SlidingMenu.TOUCHMODE_FULLSCREEN);
+        menu.setShadowWidthRes(R.dimen.shadow_width);
+        menu.setShadowDrawable(R.drawable.shadowright);
+        menu.setBehindOffsetRes(R.dimen.slidingmenu_offset);
+        menu.setFadeDegree(0.35f);
+        menu.attachToActivity(this, SlidingMenu.SLIDING_WINDOW);
+        menu.setMenu(fragmentResId);
+    }
+
+    @Override
+    public void onBackPressed() {
+        if(!useSlidingMenu) {
+            super.onBackPressed();
+            return;
+        }
+
+        if (menu != null && menu.isMenuShowing()) {
+            menu.toggle();
+        }
     }
 }

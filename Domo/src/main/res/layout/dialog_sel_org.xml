@@ -84,7 +84,7 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
-            android:text="Please enter the organization code provided to you for"
+            android:text="Please enter the organization code for:"
             android:gravity="center"
             android:layout_marginTop="10sp"
             android:textStyle="bold" />

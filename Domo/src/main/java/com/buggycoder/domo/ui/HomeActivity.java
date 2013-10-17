@@ -1,15 +1,14 @@
 package com.buggycoder.domo.ui;
 
-import android.content.Context;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
-import android.view.LayoutInflater;
+import android.os.Bundle;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
 
-import com.actionbarsherlock.app.ActionBar;
 import com.buggycoder.domo.R;
+import com.buggycoder.domo.api.response.MyOrganization;
+import com.buggycoder.domo.events.OrganizationEvents;
+import com.buggycoder.domo.lib.Logger;
 import com.buggycoder.domo.ui.base.BaseFragmentActivity;
 import com.buggycoder.domo.ui.fragment.SelectOrgFragment;
 import com.buggycoder.domo.ui.fragment.SelectOrgFragment_;
@@ -20,6 +19,9 @@ import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.ViewById;
 import org.androidannotations.annotations.WindowFeature;
 
+import de.keyboardsurfer.android.widget.crouton.Crouton;
+import de.keyboardsurfer.android.widget.crouton.Style;
+
 /**
  * Created by shirish on 15/10/13.
  */
@@ -27,57 +29,72 @@ import org.androidannotations.annotations.WindowFeature;
 @WindowFeature(Window.FEATURE_NO_TITLE)
 public class HomeActivity extends BaseFragmentActivity {
 
+    private static final String TAG_FRAG_SELORG = "selorg";
+
     @ViewById
     Button btnAddCommunity;
 
     SlidingMenu menu;
 
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+    }
+
     @AfterViews
     protected void afterViews() {
-        final ActionBar ab = getSupportActionBar();
-        if (ab != null) {
-            ab.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#00000000")));
-            ab.setStackedBackgroundDrawable(new ColorDrawable(Color.parseColor("#00000000")));
-
-            ab.setDisplayShowCustomEnabled(true);
-            ab.setDisplayHomeAsUpEnabled(false);
-            ab.setDisplayShowHomeEnabled(false);
-            ab.setDisplayShowTitleEnabled(false);
-
-            LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            View view = inflater.inflate(R.layout.custom_title, null);
-            ab.setCustomView(view);
-        }
-
-        // configure the SlidingMenu
-        menu = new SlidingMenu(this);
-        menu.setMode(SlidingMenu.RIGHT);
-        menu.setTouchModeAbove(SlidingMenu.TOUCHMODE_FULLSCREEN);
-        menu.setShadowWidthRes(R.dimen.shadow_width);
-        menu.setShadowDrawable(R.drawable.shadowright);
-        menu.setBehindOffsetRes(R.dimen.slidingmenu_offset);
-        menu.setFadeDegree(0.35f);
-        menu.attachToActivity(this, SlidingMenu.SLIDING_WINDOW);
-        menu.setMenu(R.layout.frag_menu);
+        Logger.d("afterViews");
+        setSlidingMenu(R.layout.frag_menu, SlidingMenu.RIGHT);
 
         btnAddCommunity.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                SelectOrgFragment selOrgDialog = new SelectOrgFragment_();
-                selOrgDialog.setRetainInstance(true);
-                selOrgDialog.show(getSupportFragmentManager(), "selorg");
+                getSelOrgFragment().show(getSupportFragmentManager(), TAG_FRAG_SELORG);
             }
         });
 
     }
 
-    public void onBackPressed(){
+    protected SelectOrgFragment getSelOrgFragment() {
+        SelectOrgFragment selOrgDialog = (SelectOrgFragment) getSupportFragmentManager().findFragmentByTag(TAG_FRAG_SELORG);
 
-        if (menu.isMenuShowing()) {
-            menu.toggle();
+        if (selOrgDialog == null) {
+            selOrgDialog = new SelectOrgFragment_();
+            selOrgDialog.setRetainInstance(true);
         } else {
-            super.onBackPressed();
+            Logger.d("not null");
+        }
+
+        return selOrgDialog;
+    }
+
+    protected void onEventMainThread(OrganizationEvents.CheckOrgCodeResult o) {
+        Logger.d("F:CheckOrgCodeResult");
+
+        SelectOrgFragment selOrgDialog = getSelOrgFragment();
+        if (selOrgDialog != null && selOrgDialog.isVisible()) {
+            selOrgDialog.dismiss();
+        }
+
+        if (o.result.hasError) {
+            Crouton.makeText(this, o.result.errors.get(0), Style.ALERT).show();
+            return;
+        }
+
+        MyOrganization myOrg = o.result.getResponse();
+        Logger.dump(myOrg);
+
+        if (myOrg.getCode().length() > 0) {
+            Crouton.makeText(this, "Membership verified.", Style.INFO).show();
+
+//            Bundle bundle = new Bundle();
+//            bundle.putString(GetAdviceActivity.KEY_ORGURL, myOrg.getOrgURL());
+//            bundle.putString(GetAdviceActivity.KEY_ORGCODE, myOrg.getCode());
+//            bundle.putString(GetAdviceActivity.KEY_ORGDISPLAYNAME, myOrg.getDisplayName());
+//
+//            openActivity(GetAdviceActivity_.class, bundle, true);
         }
     }
+
 
 }

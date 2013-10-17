@@ -16,8 +16,15 @@ import org.androidannotations.annotations.EFragment;
 @EFragment(R.layout.menu_list)
 public class MenuListFragment extends ListFragment {
 
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setRetainInstance(true);
+    }
+
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+
         SampleAdapter adapter = new SampleAdapter(getActivity());
         for (int i = 0; i < 20; i++) {
             adapter.add(new SampleItem("Sample List", android.R.drawable.ic_menu_search));

@@ -38,26 +38,30 @@ configurations {
 dependencies {
     compile 'com.android.support:support-v4:18.0.0'
     compile 'com.google.android.gms:play-services:3.1.+'
-    compile group: "com.fasterxml.jackson.core", name: "jackson-core", version: "2.2.2"
-    compile group: "com.fasterxml.jackson.core", name: "jackson-annotations", version: "2.2.2"
-    compile group: "com.fasterxml.jackson.core", name: "jackson-databind", version: "2.2.2"
-    compile group: "com.j256.ormlite", name: "ormlite-core", version: "4.45"
-    compile group: "com.j256.ormlite", name: "ormlite-android", version: "4.45"
+    compile 'com.fasterxml.jackson.core:jackson-core:2.2.2'
+    compile 'com.fasterxml.jackson.core:jackson-annotations:2.2.2'
+    compile 'com.fasterxml.jackson.core:jackson-databind:2.2.2'
+    compile 'com.j256.ormlite:ormlite-core:4.45'
+    compile 'com.j256.ormlite:ormlite-android:4.45'
+    compile 'com.squareup.picasso:picasso:2.1.1'
 
     compile('de.keyboardsurfer.android.widget:crouton:1.8.1') {
         exclude module: 'support-v4'
         compile 'com.android.support:support-v4:18.0.0'
     }
 
+    apt 'org.androidannotations:androidannotations:3.0-SNAPSHOT'
+    compile 'org.androidannotations:androidannotations-api:3.0-SNAPSHOT'
+
+
     compile project(':libraries:actionbarsherlock')
     compile project(':libraries:SlidingMenu:slidingmenu')
 
+
     compile files('libs/eventbus-2.1.0-beta-1.jar')
     compile files('libs/volley.jar')
-
-    apt group: "org.androidannotations", name: "androidannotations", version: "3.0-SNAPSHOT"
-    compile group: "org.androidannotations", name: "androidannotations-api", version: "3.0-SNAPSHOT"
 }
+
 
 def getSourceSetName(variant) {
     return new File(variant.dirName).getName();
