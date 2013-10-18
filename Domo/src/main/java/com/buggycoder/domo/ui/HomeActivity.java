@@ -1,5 +1,6 @@
 package com.buggycoder.domo.ui;
 
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
@@ -23,6 +24,7 @@ import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Background;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EActivity;
+import org.androidannotations.annotations.RootContext;
 import org.androidannotations.annotations.SystemService;
 import org.androidannotations.annotations.ViewById;
 import org.androidannotations.annotations.WindowFeature;
@@ -127,13 +129,6 @@ public class HomeActivity extends BaseFragmentActivity {
         if (myOrg.getCode().length() > 0) {
             Crouton.makeText(this, "Membership verified.", Style.INFO).show();
             showMyOrganizations();
-
-//            Bundle bundle = new Bundle();
-//            bundle.putString(GetAdviceActivity.KEY_ORGURL, myOrg.getOrgURL());
-//            bundle.putString(GetAdviceActivity.KEY_ORGCODE, myOrg.getCode());
-//            bundle.putString(GetAdviceActivity.KEY_ORGDISPLAYNAME, myOrg.getDisplayName());
-//
-//            openActivity(GetAdviceActivity_.class, bundle, true);
         }
     }
 
@@ -159,8 +154,14 @@ public class HomeActivity extends BaseFragmentActivity {
                     View v;
                     TextView tv;
 
-                    for(MyOrganization o : finalMyOrganizationList) {
+                    for(final MyOrganization o : finalMyOrganizationList) {
                         v = (View) layoutInflater.inflate(android.R.layout.simple_list_item_1, null, true);
+                        v.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                OrgActivity_.intent(HomeActivity.this).orgId(o.getId()).start();
+                            }
+                        });
                         tv = (TextView) v.findViewById(android.R.id.text1);
                         tv.setText(o.getDisplayName());
                         tv.setTag(o.getId());

@@ -10,6 +10,7 @@ import com.buggycoder.domo.lib.Logger;
 import org.androidannotations.annotations.AfterInject;
 import org.androidannotations.annotations.EBean;
 import org.androidannotations.annotations.RootContext;
+import org.androidannotations.annotations.res.StringRes;
 
 @EBean(scope = EBean.Scope.Singleton)
 public class Config {
@@ -22,18 +23,21 @@ public class Config {
 
     @RootContext
     Context context;
+
+    @StringRes(R.string.site_root)
+    String siteRoot;
+
+    @StringRes(R.string.api_root)
     String apiRoot;
 
 
     @AfterInject
     public void init() {
-        loadApiConfig();
         Logger.d("Config.init");
     }
 
-    private void loadApiConfig() {
-        Resources r = context.getResources();
-        apiRoot = r.getString(R.string.api_root);
+    public String getSiteRoot() {
+        return siteRoot;
     }
 
     public String getOrganizationsApi() {

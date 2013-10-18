@@ -14,7 +14,6 @@ import java.util.Map;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
         "_id",
-        "id",
         "bannerURL",
         "code",
         "orgURL",
@@ -28,10 +27,6 @@ public class MyOrganization {
     @JsonProperty("_id")
     @DatabaseField(id = true)
     private String _id;
-
-    @JsonProperty("id")
-    @DatabaseField(canBeNull = false)
-    private String id;
 
     @JsonProperty("orgURL")
     @DatabaseField(canBeNull = false)
@@ -121,23 +116,13 @@ public class MyOrganization {
         this.displayName = displayName;
     }
 
-    @JsonProperty("id")
-    public String getId() {
-        return id;
-    }
-
-    @JsonProperty("id")
-    public void setId(String id) {
-        this.id = id;
-    }
-
     @JsonProperty("_id")
-    public String get_id() {
+    public String getId() {
         return _id;
     }
 
     @JsonProperty("_id")
-    public void set_id(String _id) {
+    public void setId(String _id) {
         this._id = _id;
     }
 
