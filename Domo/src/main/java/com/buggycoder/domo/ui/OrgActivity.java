@@ -47,6 +47,8 @@ public class OrgActivity extends BaseFragmentActivity {
     @Bean
     Config config;
 
+    @ViewById
+    ImageView menuToggle;
 
     Dao<MyOrganization, String> myOrgDao;
     MyOrganization myOrg;
@@ -64,6 +66,13 @@ public class OrgActivity extends BaseFragmentActivity {
                         .orgCode(myOrg.getCode())
                         .orgDisplayName(myOrg.getDisplayName())
                         .start();
+            }
+        });
+
+        menuToggle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                toggleSlidingMenu();
             }
         });
     }
@@ -87,6 +96,7 @@ public class OrgActivity extends BaseFragmentActivity {
                         Picasso.with(OrgActivity.this)
                             .load(myOrg.getBannerURL())
                             .resize(500, 200)
+                            .placeholder(R.drawable.ic_launcher)
                             .centerCrop()
                             .into(orgBanner);
                     }

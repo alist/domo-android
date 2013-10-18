@@ -11,19 +11,43 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <TextView
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            android:text=""
-            android:id="@+id/orgDisplayName" />
+            android:orientation="horizontal"
+            android:layout_margin="10sp">
+
+            <ProgressBar
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/progressBar"
+                android:visibility="gone"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10sp"
+                android:layout_weight="1"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:text="Massachusetts Institute of Technology"
+                android:id="@+id/orgDisplayName"
+                android:singleLine="true"
+                android:ellipsize="end" />
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/menuToggle"
+                android:src="@drawable/domo_menu" />
+
+        </LinearLayout>
 
         <ImageView
             android:id="@+id/orgBanner"
             android:layout_width="match_parent"
             android:layout_height="200sp"
             android:layout_gravity="center"
-            android:src="@drawable/logo"
+            android:src="@drawable/ic_launcher"
             android:scaleType="centerCrop" />
 
         <Button
@@ -31,7 +55,8 @@
             android:layout_height="wrap_content"
             android:text="Ask Advice"
             android:id="@+id/askAdvice"
-            android:layout_gravity="center_horizontal" />
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="30sp" />
 
 
     </LinearLayout>

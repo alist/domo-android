@@ -9,6 +9,7 @@ import android.widget.Filter;
 import android.widget.Filterable;
 
 import com.buggycoder.domo.api.OrganizationAPI;
+import com.buggycoder.domo.api.response.MyOrganization;
 import com.buggycoder.domo.api.response.Organization;
 import com.buggycoder.domo.app.Config;
 import com.buggycoder.domo.ui.adapter.view.OrgItemView;
@@ -21,6 +22,7 @@ import org.androidannotations.annotations.RootContext;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by shirish on 18/10/13.
@@ -37,9 +39,18 @@ public class AutoCompleteOrgAdapter extends ArrayAdapter<Organization> implement
     @Bean
     Config config;
 
+    List<String> exclusionList;
 
     public AutoCompleteOrgAdapter(final Context context) {
         super(context, -1);
+    }
+
+    public List<String> getExclusionList() {
+        return exclusionList;
+    }
+
+    public void setExclusionList(List<String> exclusionList) {
+        this.exclusionList = exclusionList;
     }
 
     @Override
@@ -62,15 +73,20 @@ public class AutoCompleteOrgAdapter extends ArrayAdapter<Organization> implement
         Filter myFilter = new Filter() {
             @Override
             protected FilterResults performFiltering(final CharSequence constraint) {
-                List<Organization> orgList = null;
+                List<Organization> remoteOrgList = null, orgList = new ArrayList<Organization>();
                 if (constraint != null) {
                     try {
-                        orgList = OrganizationAPI.filterOrganizations(config, constraint.toString());
+                        remoteOrgList = OrganizationAPI.filterOrganizations(config, constraint.toString());
                     } catch (IOException e) {
                     }
                 }
-                if (orgList == null) {
-                    orgList = new ArrayList<Organization>();
+
+                if (remoteOrgList != null && exclusionList != null) {
+                    for(Organization o : remoteOrgList) {
+                        if(!exclusionList.contains(o.get_id())) {
+                            orgList.add(o);
+                        }
+                    }
                 }
 
                 final FilterResults filterResults = new FilterResults();

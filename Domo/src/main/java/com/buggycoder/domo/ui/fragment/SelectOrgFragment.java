@@ -16,11 +16,14 @@ import android.widget.TextView;
 
 import com.buggycoder.domo.R;
 import com.buggycoder.domo.api.OrganizationAPI;
+import com.buggycoder.domo.api.response.MyOrganization;
 import com.buggycoder.domo.api.response.Organization;
 import com.buggycoder.domo.app.Config;
+import com.buggycoder.domo.db.DatabaseHelper;
 import com.buggycoder.domo.lib.UIUtils;
 import com.buggycoder.domo.ui.adapter.AutoCompleteOrgAdapter;
 import com.buggycoder.domo.ui.base.BaseDialogFragment;
+import com.j256.ormlite.dao.Dao;
 
 import org.androidannotations.annotations.AfterTextChange;
 import org.androidannotations.annotations.AfterViews;
@@ -31,6 +34,9 @@ import org.androidannotations.annotations.InstanceState;
 import org.androidannotations.annotations.ViewById;
 
 import java.io.UnsupportedEncodingException;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by shirish on 17/10/13.
@@ -198,6 +204,20 @@ public class SelectOrgFragment extends BaseDialogFragment {
 
 
     protected void setupOrgAutocomplete() {
+
+        Dao<MyOrganization, String> myOrgDao = null;
+        try {
+            myOrgDao = DatabaseHelper.getDaoManager().getDao(MyOrganization.class);
+            List<MyOrganization> myOrganizationList = myOrgDao.queryForAll();
+            List<String> excludeOrgIds = new ArrayList<String>();
+            for(MyOrganization o : myOrganizationList) {
+                excludeOrgIds.add(o.getId());
+            }
+            orgAdapter.setExclusionList(excludeOrgIds);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
         acOrgCode.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {

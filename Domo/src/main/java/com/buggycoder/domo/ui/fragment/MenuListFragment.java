@@ -1,7 +1,10 @@
 package com.buggycoder.domo.ui.fragment;
 
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 
 import com.buggycoder.domo.R;
@@ -14,12 +17,14 @@ import com.buggycoder.domo.lib.PubSub;
 import com.buggycoder.domo.ui.OrgActivity;
 import com.buggycoder.domo.ui.OrgActivity_;
 import com.buggycoder.domo.ui.adapter.MenuAdapter;
+import com.buggycoder.domo.ui.base.BaseFragmentActivity;
 import com.buggycoder.domo.ui.base.BaseListFragment;
 import com.j256.ormlite.dao.Dao;
 
 import org.androidannotations.annotations.Background;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;
+import org.androidannotations.annotations.SystemService;
 import org.androidannotations.annotations.UiThread;
 
 import java.sql.SQLException;
@@ -31,6 +36,9 @@ public class MenuListFragment extends BaseListFragment {
 
     @Bean
     MenuAdapter menuAdapter;
+
+    @SystemService
+    LayoutInflater layoutInflater;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -46,7 +54,6 @@ public class MenuListFragment extends BaseListFragment {
     }
 
     protected void onEventMainThread(OrganizationEvents.MyOrganizationsUpdate o) {
-        Logger.d("MyOrganizationsUpdate");
         loadMyOrganizations();
     }
 

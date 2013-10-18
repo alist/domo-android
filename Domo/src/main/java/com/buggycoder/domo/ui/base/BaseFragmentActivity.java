@@ -18,6 +18,8 @@ import com.buggycoder.domo.events.Network;
 import com.buggycoder.domo.events.UIEvents;
 import com.buggycoder.domo.lib.Logger;
 import com.buggycoder.domo.lib.PubSub;
+import com.buggycoder.domo.ui.fragment.SelectOrgFragment;
+import com.buggycoder.domo.ui.fragment.SelectOrgFragment_;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
@@ -34,6 +36,8 @@ public abstract class BaseFragmentActivity extends SherlockFragmentActivity {
 
     // Push
     private final static int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
+    public static final String TAG_FRAG_SELORG = "selorg";
+
     String SENDER_ID = "868406809590";
     GoogleCloudMessaging gcm;
     String regid;
@@ -283,6 +287,31 @@ public abstract class BaseFragmentActivity extends SherlockFragmentActivity {
         menu.setFadeDegree(0.35f);
         menu.attachToActivity(this, SlidingMenu.SLIDING_WINDOW);
         menu.setMenu(fragmentResId);
+    }
+
+    protected void toggleSlidingMenu() {
+        if(useSlidingMenu && menu != null) {
+            menu.toggle();
+        }
+    }
+
+
+
+    public SelectOrgFragment getSelOrgFragment() {
+        SelectOrgFragment selOrgDialog = (SelectOrgFragment) getSupportFragmentManager().findFragmentByTag(TAG_FRAG_SELORG);
+
+        if (selOrgDialog == null) {
+            selOrgDialog = new SelectOrgFragment_();
+            selOrgDialog.setRetainInstance(true);
+        } else {
+            Logger.d("not null");
+        }
+
+        return selOrgDialog;
+    }
+
+    public void showSelOrgFragment() {
+        getSelOrgFragment().show(getSupportFragmentManager(), TAG_FRAG_SELORG);
     }
 
 

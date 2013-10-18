@@ -43,8 +43,6 @@ import de.keyboardsurfer.android.widget.crouton.Style;
 @WindowFeature(Window.FEATURE_NO_TITLE)
 public class HomeActivity extends BaseFragmentActivity {
 
-    private static final String TAG_FRAG_SELORG = "selorg";
-
     @ViewById
     Button btnAddCommunity;
 
@@ -66,7 +64,6 @@ public class HomeActivity extends BaseFragmentActivity {
     private static final String MSG_NO_COMM = "You have no communities.";
 
 
-
     @AfterViews
     protected void afterViews() {
         setSlidingMenu(R.layout.frag_menu, SlidingMenu.RIGHT);
@@ -84,23 +81,9 @@ public class HomeActivity extends BaseFragmentActivity {
         btnAddCommunity.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                getSelOrgFragment().show(getSupportFragmentManager(), TAG_FRAG_SELORG);
+                showSelOrgFragment();
             }
         });
-    }
-
-
-    protected SelectOrgFragment getSelOrgFragment() {
-        SelectOrgFragment selOrgDialog = (SelectOrgFragment) getSupportFragmentManager().findFragmentByTag(TAG_FRAG_SELORG);
-
-        if (selOrgDialog == null) {
-            selOrgDialog = new SelectOrgFragment_();
-            selOrgDialog.setRetainInstance(true);
-        } else {
-            Logger.d("not null");
-        }
-
-        return selOrgDialog;
     }
 
 
@@ -129,6 +112,7 @@ public class HomeActivity extends BaseFragmentActivity {
         if (myOrg.getCode().length() > 0) {
             Crouton.makeText(this, "Membership verified.", Style.INFO).show();
             showMyOrganizations();
+            OrgActivity_.intent(HomeActivity.this).orgId(myOrg.getId()).start();
         }
     }
 
