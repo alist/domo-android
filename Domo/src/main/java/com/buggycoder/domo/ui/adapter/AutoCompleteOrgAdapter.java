@@ -7,11 +7,16 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Filter;
 import android.widget.Filterable;
-import android.widget.TextView;
 
 import com.buggycoder.domo.api.OrganizationAPI;
 import com.buggycoder.domo.api.response.Organization;
 import com.buggycoder.domo.app.Config;
+import com.buggycoder.domo.ui.adapter.view.OrgItemView;
+import com.buggycoder.domo.ui.adapter.view.OrgItemView_;
+
+import org.androidannotations.annotations.Bean;
+import org.androidannotations.annotations.EBean;
+import org.androidannotations.annotations.RootContext;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -21,29 +26,34 @@ import java.util.List;
  * Created by shirish on 18/10/13.
  */
 
-
+@EBean
 public class AutoCompleteOrgAdapter extends ArrayAdapter<Organization> implements Filterable {
 
     private LayoutInflater mInflater;
-    private Config config;
 
-    public AutoCompleteOrgAdapter(final Context context, final Config c) {
+    @RootContext
+    Context context;
+
+    @Bean
+    Config config;
+
+
+    public AutoCompleteOrgAdapter(final Context context) {
         super(context, -1);
-        config = c;
-        mInflater = LayoutInflater.from(context);
     }
 
     @Override
     public View getView(final int position, final View convertView, final ViewGroup parent) {
-        final TextView tv;
-        if (convertView != null) {
-            tv = (TextView) convertView;
+
+        OrgItemView orgItemView;
+        if (convertView == null) {
+            orgItemView = OrgItemView_.build(context);
         } else {
-            tv = (TextView) mInflater.inflate(android.R.layout.simple_dropdown_item_1line, parent, false);
+            orgItemView = (OrgItemView) convertView;
         }
 
-        tv.setText(getItem(position).getDisplayName());
-        return tv;
+        orgItemView.bind(getItem(position));
+        return orgItemView;
     }
 
 
@@ -90,4 +100,6 @@ public class AutoCompleteOrgAdapter extends ArrayAdapter<Organization> implement
         };
         return myFilter;
     }
+
+
 }

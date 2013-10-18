@@ -58,6 +58,9 @@ public class SelectOrgFragment extends BaseDialogFragment {
     TextView tvOrgDisplayName;
 
     @Bean
+    AutoCompleteOrgAdapter orgAdapter;
+
+    @Bean
     Config config;
 
     @InstanceState
@@ -206,7 +209,7 @@ public class SelectOrgFragment extends BaseDialogFragment {
             }
         });
 
-        acOrgCode.setAdapter(new AutoCompleteOrgAdapter(getSherlockActivity(), config));
+        acOrgCode.setAdapter(orgAdapter);
         acOrgCode.requestFocus();
     }
 

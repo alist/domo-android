@@ -23,42 +23,10 @@ import org.androidannotations.annotations.WindowFeature;
 @WindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS)
 public class OrgActivity extends BaseFragmentActivity {
 
-    SlidingMenu menu;
 
     @AfterViews
     protected void afterViews() {
-        final ActionBar ab = getSupportActionBar();
-        ab.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#00000000")));
-        ab.setStackedBackgroundDrawable(new ColorDrawable(Color.parseColor("#00000000")));
-
-        ab.setDisplayShowCustomEnabled(true);
-        ab.setDisplayHomeAsUpEnabled(false);
-        ab.setDisplayShowHomeEnabled(false);
-        ab.setDisplayShowTitleEnabled(false);
-
-        LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View view = inflater.inflate(R.layout.custom_title, null);
-        ab.setCustomView(view);
-
-        // configure the SlidingMenu
-        menu = new SlidingMenu(this);
-        menu.setMode(SlidingMenu.RIGHT);
-        menu.setTouchModeAbove(SlidingMenu.TOUCHMODE_FULLSCREEN);
-        menu.setShadowWidthRes(R.dimen.shadow_width);
-        menu.setShadowDrawable(R.drawable.shadowright);
-        menu.setBehindOffsetRes(R.dimen.slidingmenu_offset);
-        menu.setFadeDegree(0.35f);
-        menu.attachToActivity(this, SlidingMenu.SLIDING_WINDOW);
-        menu.setMenu(R.layout.frag_menu);
     }
 
-    public void onBackPressed(){
-
-        if (menu.isMenuShowing()) {
-            menu.toggle();
-        } else {
-            super.onBackPressed();
-        }
-    }
 
 }

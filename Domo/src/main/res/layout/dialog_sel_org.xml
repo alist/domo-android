@@ -41,7 +41,6 @@
             android:layout_marginRight="20sp"
             android:layout_marginTop="12sp"
             android:completionThreshold="1"
-            android:dropDownHeight="130sp"
             android:padding="12sp"
             android:hint="Enter your organization's name"
             android:maxLines="2" />
