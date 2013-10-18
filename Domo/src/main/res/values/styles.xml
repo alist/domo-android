@@ -80,5 +80,5 @@
     <color name="domo_green">#00B147</color>
     <color name="domo_white">#FFFFFF</color>
     <color name="domo_white_trans">#77FFFFFF</color>
-
+    <color name="domo_black_trans">#22000000</color>
 </resources>

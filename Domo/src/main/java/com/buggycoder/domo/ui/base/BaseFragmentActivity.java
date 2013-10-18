@@ -15,6 +15,7 @@ import com.buggycoder.domo.api.PushAPI;
 import com.buggycoder.domo.app.Config;
 import com.buggycoder.domo.app.Config_;
 import com.buggycoder.domo.events.Network;
+import com.buggycoder.domo.events.UIEvents;
 import com.buggycoder.domo.lib.Logger;
 import com.buggycoder.domo.lib.PubSub;
 import com.google.android.gms.common.ConnectionResult;
@@ -120,6 +121,10 @@ public abstract class BaseFragmentActivity extends SherlockFragmentActivity {
         Crouton.makeText(this,
                 o.isConnected ? "Connected" : "Disconnected",
                 o.isConnected ? Style.INFO : Style.ALERT).show();
+    }
+
+    protected void onEventMainThread(UIEvents.SlidingMenuItemSelected o) {
+        closeSlidingMenu(false);
     }
 
     /**
@@ -256,6 +261,12 @@ public abstract class BaseFragmentActivity extends SherlockFragmentActivity {
         editor.putString("reg-id", regId);
         editor.putInt("app-ver", appVersion);
         editor.commit();
+    }
+
+    protected void closeSlidingMenu(boolean animate) {
+        if(useSlidingMenu && menu != null && menu.isMenuShowing()) {
+            menu.showContent(animate);
+        }
     }
 
 

@@ -1,63 +1,95 @@
 package com.buggycoder.domo.ui.fragment;
-import android.content.Context;
+
 import android.os.Bundle;
-import android.support.v4.app.ListFragment;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.ImageView;
-import android.widget.TextView;
+import android.widget.ListView;
 
 import com.buggycoder.domo.R;
+import com.buggycoder.domo.api.response.MyOrganization;
+import com.buggycoder.domo.db.DatabaseHelper;
+import com.buggycoder.domo.events.OrganizationEvents;
+import com.buggycoder.domo.events.UIEvents;
+import com.buggycoder.domo.lib.Logger;
+import com.buggycoder.domo.lib.PubSub;
+import com.buggycoder.domo.ui.OrgActivity;
+import com.buggycoder.domo.ui.OrgActivity_;
+import com.buggycoder.domo.ui.adapter.MenuAdapter;
+import com.buggycoder.domo.ui.base.BaseListFragment;
+import com.j256.ormlite.dao.Dao;
 
+import org.androidannotations.annotations.Background;
+import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;
+import org.androidannotations.annotations.UiThread;
+
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 @EFragment(R.layout.menu_list)
-public class MenuListFragment extends ListFragment {
+public class MenuListFragment extends BaseListFragment {
+
+    @Bean
+    MenuAdapter menuAdapter;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
+        setEnablePubSub(true);
     }
 
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-
-        SampleAdapter adapter = new SampleAdapter(getActivity());
-        for (int i = 0; i < 20; i++) {
-            adapter.add(new SampleItem("Sample List", android.R.drawable.ic_menu_search));
-        }
-        setListAdapter(adapter);
+        setListAdapter(menuAdapter);
+        loadMyOrganizations();
     }
 
-    private class SampleItem {
-        public String tag;
-        public int iconRes;
-        public SampleItem(String tag, int iconRes) {
-            this.tag = tag;
-            this.iconRes = iconRes;
+    protected void onEventMainThread(OrganizationEvents.MyOrganizationsUpdate o) {
+        Logger.d("MyOrganizationsUpdate");
+        loadMyOrganizations();
+    }
+
+
+    @Background
+    protected void loadMyOrganizations() {
+        try {
+            Dao<MyOrganization, String> myOrgDao = DatabaseHelper.getDaoManager().getDao(MyOrganization.class);
+            displayMyOrganizations(myOrgDao.queryForAll());
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
 
-    public class SampleAdapter extends ArrayAdapter<SampleItem> {
 
-        public SampleAdapter(Context context) {
-            super(context, 0);
+    @UiThread
+    protected void displayMyOrganizations(List<MyOrganization> myOrganizationList) {
+
+        if(myOrganizationList == null) {
+            myOrganizationList = new ArrayList<MyOrganization>();
         }
 
-        public View getView(int position, View convertView, ViewGroup parent) {
-            if (convertView == null) {
-                convertView = LayoutInflater.from(getContext()).inflate(R.layout.menu_row, null);
-            }
-            ImageView icon = (ImageView) convertView.findViewById(R.id.row_icon);
-            icon.setImageResource(getItem(position).iconRes);
-            TextView title = (TextView) convertView.findViewById(R.id.row_title);
-            title.setText(getItem(position).tag);
+        menuAdapter.clear();
 
-            return convertView;
+        for(MyOrganization o : myOrganizationList) {
+            menuAdapter.add(o);
         }
 
+        menuAdapter.notifyDataSetChanged();
     }
+
+    @Override
+    public void onListItemClick(ListView l, View v, int position, long id) {
+        MyOrganization selMyOrg = (MyOrganization) menuAdapter.getItem(position);
+        if(selMyOrg != null) {
+
+            UIEvents.SlidingMenuItemSelected selMenuItem = new UIEvents.SlidingMenuItemSelected();
+            selMenuItem.selMyOrganization = selMyOrg;
+            PubSub.publish(selMenuItem);
+
+            PubSub.unsubscribe(this);
+            OrgActivity_.intent(getSherlockActivity()).orgId(selMyOrg.getId()).start();
+        }
+    }
+
 }

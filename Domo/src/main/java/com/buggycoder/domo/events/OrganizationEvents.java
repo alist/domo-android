@@ -10,6 +10,11 @@ import com.buggycoder.domo.api.response.Organization;
  * Created by shirish on 8/9/13.
  */
 public class OrganizationEvents {
+
+    public static class MyOrganizationsUpdate {
+
+    }
+
     public static class GetOrganizations {
 
     }

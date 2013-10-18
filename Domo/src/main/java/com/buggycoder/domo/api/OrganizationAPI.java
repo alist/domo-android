@@ -1,5 +1,7 @@
 package com.buggycoder.domo.api;
 
+import android.text.TextUtils;
+
 import com.android.volley.Request;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
@@ -166,7 +168,7 @@ public class OrganizationAPI {
         RequestManager.getRequestQueue().add(apiRequest);
     }
 
-    public static void checkCode(Config config, String orgURL, String orgCode) throws UnsupportedEncodingException {
+    public static void checkCode(final Config config, String orgURL, String orgCode) throws UnsupportedEncodingException {
 
         APIRequest.ResponseHandler responseHandler = new APIRequest.ResponseHandler<APIResponse<MyOrganization>>(MyOrganization.class, false) {
             @Override
@@ -178,6 +180,12 @@ public class OrganizationAPI {
                 }
 
                 MyOrganization organization = response.getResponse();
+
+                String bannerURL = organization.getBannerURL();
+                if(!TextUtils.isEmpty(bannerURL)) {
+                    organization.setBannerURL(config.getSiteRoot() + bannerURL);
+                }
+
                 Logger.dump(organization);
 
                 try {
@@ -187,6 +195,10 @@ public class OrganizationAPI {
                                     .getDao(MyOrganization.class);
                     Dao.CreateOrUpdateStatus status = daoOrg.createOrUpdate(organization);
                     Logger.d(status.isCreated() + " | " + status.isUpdated());
+
+                    if(status.isCreated() || status.isUpdated()) {
+                        PubSub.publish(new OrganizationEvents.MyOrganizationsUpdate());
+                    }
 
                 } catch (SQLException e) {
                     e.printStackTrace();

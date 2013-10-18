@@ -23,6 +23,20 @@
             android:layout_gravity="center"
             android:layout_marginBottom="20sp" />
 
+
+        <com.buggycoder.domo.ui.controls.LinedEditText
+            android:id="@+id/etQuery"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginBottom="10sp"
+            android:hint="What's been on your mind recently? What could you use help with?"
+            android:minLines="10"
+            android:gravity="top"
+            android:textSize="18sp"
+            style="@style/EditTextPlainAppTheme" />
+
+
         <com.buggycoder.domo.ui.controls.CustomFontTextView
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
@@ -40,25 +54,13 @@
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:text="" />
 
-        <com.buggycoder.domo.ui.controls.CustomFontTextView
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="left"
-            android:layout_marginTop="20sp"
-            android:layout_marginBottom="10sp"
-            android:text="Query:"
-            android:textAppearance="?android:attr/textAppearanceMedium" />
 
-        <EditText
-            android:id="@+id/etQuery"
-            android:layout_width="match_parent"
+        <Button
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginBottom="10sp"
-            android:hint="Enter your query here"
-            android:minLines="10"
-            android:gravity="top"
-            android:textSize="18sp" />
+            android:text="Submit"
+            android:id="@+id/askAdviceSubmit"
+            android:layout_gravity="center_horizontal" />
 
 
     </LinearLayout>

@@ -1,24 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="50dp"
-    android:orientation="horizontal" >
+    android:layout_height="70sp"
+    android:orientation="horizontal">
 
     <ImageView
-        android:id="@+id/row_icon"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:padding="10dp"
-        android:src="@drawable/ic_launcher" />
+        android:id="@+id/menuOrgIcon"
+        android:layout_width="50sp"
+        android:layout_height="50sp"
+        android:layout_margin="8sp"
+        android:gravity="center_vertical"
+        android:src="@drawable/ic_launcher"/>
 
     <TextView
-        android:id="@+id/row_title"
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
+        android:id="@+id/menuOrgDisplayName"
+        android:layout_width="match_parent"
+        android:layout_height="fill_parent"
+        android:layout_marginLeft="6sp"
+        android:layout_marginRight="6sp"
         android:layout_weight="1"
+        android:ellipsize="end"
         android:gravity="center_vertical"
-        android:padding="10dp"
-        android:text="Medium Text"
-        android:textAppearance="@android:style/TextAppearance.Medium" />
+        android:maxLines="2"
+        android:singleLine="false"
+        android:text="TextAppearance.MediumTextAppearance.MediumTextAppearance.MediumTextAppearance.MediumTextAppearance.MediumTextAppearance.MediumTextAppearance.MediumTextAppearance.MediumTextAppearance.Medium"
+        android:textSize="17sp" />
 
 </LinearLayout>

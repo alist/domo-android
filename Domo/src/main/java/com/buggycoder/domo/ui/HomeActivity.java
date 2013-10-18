@@ -14,6 +14,7 @@ import com.buggycoder.domo.app.Config;
 import com.buggycoder.domo.db.DatabaseHelper;
 import com.buggycoder.domo.events.OrganizationEvents;
 import com.buggycoder.domo.lib.Logger;
+import com.buggycoder.domo.lib.PubSub;
 import com.buggycoder.domo.ui.base.BaseFragmentActivity;
 import com.buggycoder.domo.ui.fragment.SelectOrgFragment;
 import com.buggycoder.domo.ui.fragment.SelectOrgFragment_;
@@ -68,10 +69,9 @@ public class HomeActivity extends BaseFragmentActivity {
 
     @AfterViews
     protected void afterViews() {
-        Logger.d("afterViews");
         setSlidingMenu(R.layout.frag_menu, SlidingMenu.RIGHT);
 
-        joinStatus.setText(MSG_NO_COMM);
+        joinStatus.setText(MSG_WAIT);
 
         try {
             myOrgDao = DatabaseHelper.getDaoManager().getDao(MyOrganization.class);
@@ -142,35 +142,42 @@ public class HomeActivity extends BaseFragmentActivity {
             e.printStackTrace();
         }
 
-        if(myOrganizationList != null && myOrganizationList.size() > 0) {
-
-            final List<MyOrganization> finalMyOrganizationList = myOrganizationList;
-
+        if(myOrganizationList == null || myOrganizationList.size() == 0) {
             postToUi(new Runnable() {
                 @Override
                 public void run() {
-                    llCommunities.removeAllViewsInLayout();
-
-                    View v;
-                    TextView tv;
-
-                    for(final MyOrganization o : finalMyOrganizationList) {
-                        v = (View) layoutInflater.inflate(android.R.layout.simple_list_item_1, null, true);
-                        v.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View view) {
-                                OrgActivity_.intent(HomeActivity.this).orgId(o.getId()).start();
-                            }
-                        });
-                        tv = (TextView) v.findViewById(android.R.id.text1);
-                        tv.setText(o.getDisplayName());
-                        tv.setTag(o.getId());
-                        llCommunities.addView(v);
-                    }
+                    joinStatus.setText(MSG_NO_COMM);
                 }
             });
 
+            return;
         }
+
+        final List<MyOrganization> finalMyOrganizationList = myOrganizationList;
+
+        postToUi(new Runnable() {
+            @Override
+            public void run() {
+                llCommunities.removeAllViewsInLayout();
+
+                View v;
+                TextView tv;
+
+                for(final MyOrganization o : finalMyOrganizationList) {
+                    v = (View) layoutInflater.inflate(android.R.layout.simple_list_item_1, null, true);
+                    v.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            OrgActivity_.intent(HomeActivity.this).orgId(o.getId()).start();
+                        }
+                    });
+                    tv = (TextView) v.findViewById(android.R.id.text1);
+                    tv.setText(o.getDisplayName());
+                    tv.setTag(o.getId());
+                    llCommunities.addView(v);
+                }
+            }
+        });
 
     }
 

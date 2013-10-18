@@ -22,7 +22,7 @@ public class LinedEditText extends EditText {
         mRect = new Rect();
         mPaint = new Paint();
         mPaint.setStyle(Paint.Style.FILL_AND_STROKE);
-        mPaint.setColor(context.getResources().getColor(R.color.domo_green));
+        mPaint.setColor(context.getResources().getColor(R.color.domo_black_trans));
     }
 
     @Override

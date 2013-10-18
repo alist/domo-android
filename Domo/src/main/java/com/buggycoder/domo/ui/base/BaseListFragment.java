@@ -5,14 +5,14 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 
-import com.actionbarsherlock.app.SherlockDialogFragment;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.actionbarsherlock.app.SherlockListFragment;
 import com.buggycoder.domo.lib.PubSub;
 
 /**
  * Created by shirish on 18/10/13.
  */
-public class BaseDialogFragment extends SherlockDialogFragment {
+public class BaseListFragment extends SherlockListFragment {
 
     boolean enablePubSub = false;
 
@@ -21,6 +21,7 @@ public class BaseDialogFragment extends SherlockDialogFragment {
         if(enablePubSub) {
             PubSub.subscribe(this);
         }
+
         super.onResume();
     }
 
@@ -29,15 +30,8 @@ public class BaseDialogFragment extends SherlockDialogFragment {
         if(enablePubSub) {
             PubSub.unsubscribe(this);
         }
-        super.onPause();
-    }
 
-    @Override
-    public void onDestroyView() {
-        if(getDialog() != null && getRetainInstance()) {
-            getDialog().setDismissMessage(null);
-        }
-        super.onDestroyView();
+        super.onPause();
     }
 
     public boolean isPubSubEnabled() {
@@ -65,6 +59,7 @@ public class BaseDialogFragment extends SherlockDialogFragment {
             context.finish();
         }
     }
+
 
     protected void onEvent(Object o) {
 
