@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingTop="12sp"
+    android:paddingBottom="12sp"
+    android:paddingLeft="6sp"
+    android:paddingRight="6sp"
+    android:gravity="center_vertical">
+
+    <ProgressBar
+        android:layout_width="40sp"
+        android:layout_height="40sp"
+        android:id="@+id/progressBar"
+        android:visibility="invisible"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="My Questions"
+        android:id="@+id/title"
+        android:singleLine="true"
+        android:ellipsize="end"
+        android:gravity="center"
+        android:layout_marginTop="10sp"
+        android:layout_marginBottom="10sp"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentLeft="true" />
+
+    <ImageView
+        android:layout_width="40sp"
+        android:layout_height="40sp"
+        android:id="@+id/menuToggle"
+        android:alpha="0.8"
+        android:src="@drawable/domo_menu"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true" />
+
+</RelativeLayout>

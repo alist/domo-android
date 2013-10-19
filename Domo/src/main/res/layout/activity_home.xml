@@ -33,7 +33,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="left|center_vertical"
-                android:layout_marginLeft="20sp"
+                android:layout_marginLeft="10sp"
                 android:text="Community"
                 android:textSize="18sp"
                 android:textStyle="bold" />

@@ -20,6 +20,7 @@ import com.buggycoder.domo.api.response.MyOrganization;
 import com.buggycoder.domo.api.response.Organization;
 import com.buggycoder.domo.app.Config;
 import com.buggycoder.domo.db.DatabaseHelper;
+import com.buggycoder.domo.lib.Logger;
 import com.buggycoder.domo.lib.UIUtils;
 import com.buggycoder.domo.ui.adapter.AutoCompleteOrgAdapter;
 import com.buggycoder.domo.ui.base.BaseDialogFragment;
@@ -83,6 +84,11 @@ public class SelectOrgFragment extends BaseDialogFragment {
         return dialog;
     }
 
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        Logger.d("onDestroyView");
+    }
 
     @AfterViews
     protected void afterViews() {
@@ -195,11 +201,6 @@ public class SelectOrgFragment extends BaseDialogFragment {
     public void onDismiss(DialogInterface dialog) {
         resetOrgSel();
         super.onDismiss(dialog);
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
     }
 
 

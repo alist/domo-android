@@ -22,8 +22,6 @@ public class MenuAdapter extends ArrayAdapter<MyOrganization> {
     @RootContext
     Context context;
 
-    Dao<MyOrganization, String> myOrgDao;
-
 
     public MenuAdapter(Context context) {
         super(context, -1);
