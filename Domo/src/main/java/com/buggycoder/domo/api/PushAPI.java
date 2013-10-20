@@ -6,7 +6,6 @@ import com.android.volley.Request;
 import com.android.volley.VolleyError;
 import com.buggycoder.domo.api.request.APIRequest;
 import com.buggycoder.domo.api.response.APIResponse;
-import com.buggycoder.domo.api.response.AdviceRequest;
 import com.buggycoder.domo.api.response.PushDevice;
 import com.buggycoder.domo.app.Config;
 import com.buggycoder.domo.db.Prefs;
@@ -54,6 +53,7 @@ public class PushAPI {
                 final SharedPreferences.Editor prefEditor = Prefs.getSharedPreferences(config.getContext()).edit();
                 prefEditor.putBoolean(Prefs.Keys.PUSH_REG_COMPLETE, true);
                 prefEditor.putString(Prefs.Keys.PUSH_SUBSCRIBER_ID, pd.getSubscriberId());
+                prefEditor.putString(Prefs.Keys.PUSH_DEVICE_ID, pd.getDeviceId());
                 prefEditor.putLong(Prefs.Keys.PUSH_REG_TS, new Date().getTime());
                 prefEditor.commit();
 
@@ -63,9 +63,68 @@ public class PushAPI {
 
         responseHandler.setPath("response");
 
-        APIRequest apiRequest = new APIRequest<APIResponse<AdviceRequest>>(
+        APIRequest apiRequest = new APIRequest<APIResponse<PushDevice>>(
                 Request.Method.POST,
                 registerUrl,
+                reqBody,
+                responseHandler,
+                new APIRequest.ErrorHandler() {
+                    @Override
+                    public void onErrorResponse(VolleyError volleyError) {
+                        Logger.dump(volleyError);
+                    }
+                }
+        );
+
+        RequestManager.getRequestQueue().add(apiRequest);
+    }
+
+
+    public static void update(final Config config, final String registrationId) throws UnsupportedEncodingException {
+
+        final SharedPreferences pref = Prefs.getSharedPreferences(config.getContext());
+        final String prevRegId = pref.getString(Prefs.Keys.PUSH_REG_ID, "");
+        final String subscriberId = pref.getString(Prefs.Keys.PUSH_SUBSCRIBER_ID, "");
+        final String deviceId = pref.getString(Prefs.Keys.PUSH_DEVICE_ID, "");
+
+        if(prevRegId.isEmpty() || subscriberId.isEmpty() || deviceId.isEmpty() || prevRegId.equals(registrationId)) {
+            return;
+        }
+
+        String updateUrl = config.getPushApi() + "devicetoken";
+
+        ObjectNode reqBody = JsonManager.getMapper().createObjectNode();
+        reqBody.put("subscriberId", subscriberId);
+        reqBody.put("deviceId", deviceId);
+        reqBody.put("deviceToken", registrationId);
+
+        Logger.d(reqBody.toString());
+
+        APIRequest.ResponseHandler responseHandler = new APIRequest.ResponseHandler<APIResponse<PushDevice>>(PushDevice.class, false) {
+            @Override
+            public void onResponse(APIResponse<PushDevice> response) {
+                if (response.hasError) {
+                    Logger.d("Error: " + response.errors.toString());
+                    return;
+                }
+
+                PushDevice pd = response.getResponse();
+                Logger.dump(pd);
+
+                final SharedPreferences.Editor prefEditor = pref.edit();
+                prefEditor.putString(Prefs.Keys.PUSH_DEVICE_ID, pd.getDeviceId());
+                prefEditor.putLong(Prefs.Keys.PUSH_REG_TS, new Date().getTime());
+                prefEditor.commit();
+
+                Logger.d("subscriberId: " + pd.getSubscriberId());
+            }
+        };
+
+        responseHandler.setPath("response");
+
+        APIRequest apiRequest = new APIRequest<APIResponse<PushDevice>>(
+                Request.Method.POST,
+                updateUrl,
                 reqBody,
                 responseHandler,
                 new APIRequest.ErrorHandler() {

@@ -15,6 +15,7 @@ public class Prefs {
         public static final String PUSH_REG_COMPLETE = "push-reg-complete";
         public static final String PUSH_REG_TS = "push-reg-ts";
         public static final String PUSH_SUBSCRIBER_ID = "push-subscriber-id";
+        public static final String PUSH_DEVICE_ID = "push-device-id";
         public static final String APP_VER = "app-ver";
     }
 

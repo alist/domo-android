@@ -53,9 +53,13 @@ public class PushHelper {
             String regId = getRegistrationId(context);
 
             if (regId.isEmpty() || shouldRefreshRegId(context)) {
+                Logger.d("registerInBackground");
                 registerInBackground();
             } else if(!Prefs.getBoolean(context, Prefs.Keys.PUSH_REG_COMPLETE, false)) {
-                sendRegistrationIdToBackend(regId);
+                Logger.d("sendRegistrationIdToBackend");
+                sendRegistrationIdToBackend(context, regId);
+            } else {
+                Logger.d("somethingEvilHasHappened");
             }
 
         } else {
@@ -144,7 +148,7 @@ public class PushHelper {
                         gcm = GoogleCloudMessaging.getInstance(context);
                     }
                     String regId = gcm.register(SENDER_ID);
-                    sendRegistrationIdToBackend(regId);
+                    sendRegistrationIdToBackend(context, regId);
 
                     storeRegistrationId(context, regId);
                 } catch (IOException ex) {
@@ -155,13 +159,23 @@ public class PushHelper {
     }
 
 
-    private void sendRegistrationIdToBackend(final String regId) {
+    private void sendRegistrationIdToBackend(final Context context, final String regId) {
 
         AsyncExecutor.create().execute(new AsyncExecutor.RunnableEx() {
             @Override
             public void run() throws Exception {
-                try {
 
+                final Config config = (Config) Config_.getInstance_(activity);
+
+                if(Prefs.getBoolean(context, Prefs.Keys.PUSH_REG_COMPLETE, false)) {
+                    // update regId
+                    Logger.d("push.update");
+                    PushAPI.update(config, regId);
+                    return;
+                }
+
+                // register device
+                try {
                     Dao<MyOrganization, String> myOrganizationDao = DatabaseHelper.getDaoManager().getDao(MyOrganization.class);
                     QueryBuilder<MyOrganization, String> qBuilder = myOrganizationDao.queryBuilder();
                     qBuilder.limit(1L);
@@ -169,8 +183,9 @@ public class PushHelper {
                     List<MyOrganization> myOrgList = qBuilder.query();
 
                     if(myOrgList.size() > 0) {
+                        Logger.d("push.register");
                         MyOrganization myOrg = myOrgList.get(0);
-                        PushAPI.register((Config) Config_.getInstance_(activity), regId, myOrg.getOrgURL(), myOrg.getCode());
+                        PushAPI.register(config, regId, myOrg.getOrgURL(), myOrg.getCode());
                     }
 
                 } catch (UnsupportedEncodingException e) {
