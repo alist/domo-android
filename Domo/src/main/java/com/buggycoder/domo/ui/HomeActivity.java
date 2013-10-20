@@ -1,6 +1,5 @@
 package com.buggycoder.domo.ui;
 
-import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
@@ -14,10 +13,10 @@ import com.buggycoder.domo.app.Config;
 import com.buggycoder.domo.db.DatabaseHelper;
 import com.buggycoder.domo.events.OrganizationEvents;
 import com.buggycoder.domo.lib.Logger;
-import com.buggycoder.domo.lib.PubSub;
 import com.buggycoder.domo.ui.base.BaseFragmentActivity;
 import com.buggycoder.domo.ui.fragment.SelectOrgFragment;
 import com.buggycoder.domo.ui.fragment.SelectOrgFragment_;
+import com.buggycoder.domo.ui.helper.PushHelper;
 import com.j256.ormlite.dao.Dao;
 import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
 
@@ -25,7 +24,6 @@ import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Background;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EActivity;
-import org.androidannotations.annotations.RootContext;
 import org.androidannotations.annotations.SystemService;
 import org.androidannotations.annotations.ViewById;
 import org.androidannotations.annotations.WindowFeature;
@@ -60,32 +58,35 @@ public class HomeActivity extends BaseFragmentActivity {
     @Bean
     Config config;
 
-    Dao<MyOrganization, String> myOrgDao = null;
+    PushHelper pushHelper;
 
     private static final String MSG_WAIT = "Please wait...";
     private static final String MSG_NO_COMM = "You have no communities.";
+
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        pushHelper.checkPlayServices();
+    }
 
 
     @AfterViews
     protected void afterViews() {
         getSlidingMenuHelper().setSlidingMenu(R.layout.frag_menu, SlidingMenu.RIGHT);
 
+        pushHelper = new PushHelper(this);
+        pushHelper.checkState();
+
         joinStatus.setText(MSG_WAIT);
-
-        try {
-            myOrgDao = DatabaseHelper.getDaoManager().getDao(MyOrganization.class);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-        showMyOrganizations();
-
         btnAddCommunity.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 showSelOrgFragment();
             }
         });
+
+        showMyOrganizations();
     }
 
 
@@ -113,6 +114,7 @@ public class HomeActivity extends BaseFragmentActivity {
 
         if (myOrg.getCode().length() > 0) {
             Crouton.makeText(this, "Membership verified.", Style.INFO).show();
+            pushHelper.checkState();
             showMyOrganizations();
         }
     }
@@ -122,6 +124,7 @@ public class HomeActivity extends BaseFragmentActivity {
 
         List<MyOrganization> myOrganizationList = null;
         try {
+            Dao<MyOrganization, String> myOrgDao = DatabaseHelper.getDaoManager().getDao(MyOrganization.class);
             myOrganizationList = myOrgDao.queryForAll();
         } catch (SQLException e) {
             e.printStackTrace();

@@ -2,7 +2,6 @@ package com.buggycoder.domo.app;
 
 
 import android.content.Context;
-import android.content.res.Resources;
 
 import com.buggycoder.domo.R;
 import com.buggycoder.domo.lib.Logger;
@@ -52,5 +51,7 @@ public class Config {
         return apiRoot + API_ROOT.PUSH;
     }
 
-
+    public Context getContext() {
+        return context;
+    }
 }

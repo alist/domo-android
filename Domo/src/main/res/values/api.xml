@@ -3,4 +3,5 @@
     <string name="site_root">http://buggycoder.com:4000</string>
     <string name="api_root">http://buggycoder.com:4000/api/v1</string>
     <string name="push_sender_id">868406809590</string>
+    <integer name="push_refresh_interval_days">5</integer>
 </resources>

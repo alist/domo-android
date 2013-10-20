@@ -29,6 +29,10 @@ public class Logger {
         Log.d(TAG, msg);
     }
 
+    public static void e(Throwable t) {
+        Log.e(TAG, t.getMessage(), t);
+    }
+
     public static void e(Throwable t, String msg, Object... args) {
         if (args != null && args.length > 0) {
             msg = String.format(msg, args);

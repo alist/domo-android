@@ -1,34 +1,15 @@
 package com.buggycoder.domo.ui.base;
 
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
-import com.buggycoder.domo.R;
-import com.buggycoder.domo.api.PushAPI;
-import com.buggycoder.domo.app.Config;
-import com.buggycoder.domo.app.Config_;
 import com.buggycoder.domo.events.Network;
 import com.buggycoder.domo.events.UIEvents;
 import com.buggycoder.domo.lib.Logger;
 import com.buggycoder.domo.lib.PubSub;
-import com.buggycoder.domo.ui.fragment.SelectOrgFragment;
-import com.buggycoder.domo.ui.fragment.SelectOrgFragment_;
-import com.buggycoder.domo.ui.helper.PushHelper;
 import com.buggycoder.domo.ui.helper.SlidingMenuHelper;
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GooglePlayServicesUtil;
-import com.google.android.gms.gcm.GoogleCloudMessaging;
-import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
-
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 
 import de.keyboardsurfer.android.widget.crouton.Crouton;
 import de.keyboardsurfer.android.widget.crouton.Style;
@@ -36,7 +17,6 @@ import de.keyboardsurfer.android.widget.crouton.Style;
 
 public abstract class BaseFragmentActivity extends SherlockFragmentActivity {
 
-    PushHelper pushHelper;
     SlidingMenuHelper slidingMenuHelper;
 
     Handler handler = new Handler();
@@ -45,7 +25,6 @@ public abstract class BaseFragmentActivity extends SherlockFragmentActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        pushHelper = new PushHelper(this);
         slidingMenuHelper = new SlidingMenuHelper(this);
     }
 
@@ -53,7 +32,6 @@ public abstract class BaseFragmentActivity extends SherlockFragmentActivity {
     protected void onResume() {
         Logger.d("onResume: " + this.getLocalClassName());
         PubSub.subscribe(this);
-        pushHelper.checkPlayServices();
         super.onResume();
     }
 
@@ -112,10 +90,6 @@ public abstract class BaseFragmentActivity extends SherlockFragmentActivity {
         if(!slidingMenuHelper.handleMenuShowing()) {
             super.onBackPressed();
         }
-    }
-
-    public PushHelper getPushHelper() {
-        return pushHelper;
     }
 
     public SlidingMenuHelper getSlidingMenuHelper() {

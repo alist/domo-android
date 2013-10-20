@@ -14,7 +14,6 @@ import com.j256.ormlite.table.DatabaseTable;
 public class KeyValueStore extends Model implements Parcelable {
 
     public static class Keys {
-//        public static final String PERSTEST_COMPUTE_RESULT = "PERSTEST_COMPUTE_RESULT";
     }
 
     @DatabaseField(id = true)

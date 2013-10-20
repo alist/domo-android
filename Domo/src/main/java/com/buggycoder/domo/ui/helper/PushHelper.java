@@ -7,16 +7,24 @@ import android.content.pm.PackageManager;
 
 import com.buggycoder.domo.R;
 import com.buggycoder.domo.api.PushAPI;
+import com.buggycoder.domo.api.response.MyOrganization;
 import com.buggycoder.domo.app.Config;
 import com.buggycoder.domo.app.Config_;
+import com.buggycoder.domo.db.DatabaseHelper;
+import com.buggycoder.domo.db.Prefs;
 import com.buggycoder.domo.lib.Logger;
 import com.buggycoder.domo.ui.base.BaseFragmentActivity;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
+import com.j256.ormlite.dao.Dao;
+import com.j256.ormlite.stmt.QueryBuilder;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.sql.SQLException;
+import java.util.Date;
+import java.util.List;
 
 import de.greenrobot.event.util.AsyncExecutor;
 
@@ -25,9 +33,6 @@ import de.greenrobot.event.util.AsyncExecutor;
  */
 public class PushHelper {
 
-    public static final String PREF_REG_ID = "reg-id";
-    public static final String PREF_APP_VER = "app-ver";
-    public static final String PREF_APP_PACKAGE = "com.buggycoder.domo";
     BaseFragmentActivity activity;
 
     // Push
@@ -39,14 +44,20 @@ public class PushHelper {
     public PushHelper(BaseFragmentActivity activity) {
         this.activity = activity;
         SENDER_ID = activity.getString(R.string.push_sender_id);
+    }
 
+    public void checkState() {
         if (checkPlayServices()) {
+            Context context = activity.getApplicationContext();
             gcm = GoogleCloudMessaging.getInstance(activity);
-            String regId = getRegistrationId(activity.getApplicationContext());
+            String regId = getRegistrationId(context);
 
-            if (regId.isEmpty()) {
+            if (regId.isEmpty() || shouldRefreshRegId(context)) {
                 registerInBackground();
+            } else if(!Prefs.getBoolean(context, Prefs.Keys.PUSH_REG_COMPLETE, false)) {
+                sendRegistrationIdToBackend(regId);
             }
+
         } else {
             Logger.d("No valid Google Play Services APK found.");
         }
@@ -63,8 +74,10 @@ public class PushHelper {
             return packageInfo.versionCode;
         } catch (PackageManager.NameNotFoundException e) {
             // should never happen
-            throw new RuntimeException("Could not get package name: " + e);
+            Logger.e(e);
         }
+
+        return -1;
     }
 
     /**
@@ -96,8 +109,8 @@ public class PushHelper {
      * registration ID.
      */
     private String getRegistrationId(Context context) {
-        final SharedPreferences prefs = getGCMPreferences(context);
-        String registrationId = prefs.getString(PREF_REG_ID, "");
+        final SharedPreferences prefs = Prefs.getSharedPreferences(context);
+        String registrationId = prefs.getString(Prefs.Keys.PUSH_REG_ID, "");
         if (registrationId.isEmpty()) {
             Logger.d("Registration not found.");
             return "";
@@ -105,7 +118,7 @@ public class PushHelper {
         // Check if app was updated; if so, it must clear the registration ID
         // since the existing regID is not guaranteed to work with the new
         // app version.
-        int registeredVersion = prefs.getInt(PREF_APP_VER, Integer.MIN_VALUE);
+        int registeredVersion = prefs.getInt(Prefs.Keys.APP_VER, Integer.MIN_VALUE);
         int currentVersion = getAppVersion(context);
         if (registeredVersion != currentVersion) {
             Logger.dump("App version changed.");
@@ -114,14 +127,6 @@ public class PushHelper {
         return registrationId;
     }
 
-    /**
-     * @return Application's {@code SharedPreferences}.
-     */
-    private SharedPreferences getGCMPreferences(Context context) {
-        // This sample app persists the registration ID in shared preferences, but
-        // how you store the regID in your app is up to you.
-        return activity.getSharedPreferences(PREF_APP_PACKAGE, Context.MODE_PRIVATE);
-    }
 
     /**
      * Registers the application with GCM servers asynchronously.
@@ -134,41 +139,49 @@ public class PushHelper {
         AsyncExecutor.create().execute(new AsyncExecutor.RunnableEx() {
             @Override
             public void run() throws Exception {
-                String msg = "";
                 try {
                     if (gcm == null) {
                         gcm = GoogleCloudMessaging.getInstance(context);
                     }
                     String regId = gcm.register(SENDER_ID);
-                    msg = "Device registered, registration ID=" + regId;
-
-                    // You should send the registration ID to your server over HTTP,
-                    // so it can use GCM/HTTP or CCS to send messages to your app.
-                    // The request to your server should be authenticated if your app
-                    // is using accounts.
                     sendRegistrationIdToBackend(regId);
 
-                    // For this demo: we don't need to send it because the device
-                    // will send upstream messages to a server that echo back the
-                    // message using the 'from' address in the message.
-
-                    // Persist the regID - no need to register again.
                     storeRegistrationId(context, regId);
                 } catch (IOException ex) {
-                    msg = "Error :" + ex.getMessage();
+                    Logger.e(ex);
                 }
             }
         });
     }
 
 
-    private void sendRegistrationIdToBackend(String regId) {
-        try {
-            PushAPI.register((Config) Config_.getInstance_(activity), regId, "mit", "mit9");
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
+    private void sendRegistrationIdToBackend(final String regId) {
+
+        AsyncExecutor.create().execute(new AsyncExecutor.RunnableEx() {
+            @Override
+            public void run() throws Exception {
+                try {
+
+                    Dao<MyOrganization, String> myOrganizationDao = DatabaseHelper.getDaoManager().getDao(MyOrganization.class);
+                    QueryBuilder<MyOrganization, String> qBuilder = myOrganizationDao.queryBuilder();
+                    qBuilder.limit(1L);
+
+                    List<MyOrganization> myOrgList = qBuilder.query();
+
+                    if(myOrgList.size() > 0) {
+                        MyOrganization myOrg = myOrgList.get(0);
+                        PushAPI.register((Config) Config_.getInstance_(activity), regId, myOrg.getOrgURL(), myOrg.getCode());
+                    }
+
+                } catch (UnsupportedEncodingException e) {
+                    Logger.e(e);
+                } catch (SQLException e) {
+                    Logger.e(e);
+                }
+            }
+        });
     }
+
 
     /**
      * Stores the registration ID and app versionCode in the application's
@@ -178,12 +191,30 @@ public class PushHelper {
      * @param regId   registration ID
      */
     private void storeRegistrationId(Context context, String regId) {
-        final SharedPreferences prefs = getGCMPreferences(context);
+        final SharedPreferences prefs = Prefs.getSharedPreferences(context);
         int appVersion = getAppVersion(context);
-        Logger.d("Saving regId on app version " + appVersion);
         SharedPreferences.Editor editor = prefs.edit();
-        editor.putString(PREF_REG_ID, regId);
-        editor.putInt(PREF_APP_VER, appVersion);
+        editor.putString(Prefs.Keys.PUSH_REG_ID, regId);
+        editor.putInt(Prefs.Keys.APP_VER, appVersion);
         editor.commit();
+    }
+
+    private boolean shouldRefreshRegId(Context context) {
+        final SharedPreferences prefs = Prefs.getSharedPreferences(context);
+        long regTs = prefs.getLong(Prefs.Keys.PUSH_REG_TS, 0);
+        if(regTs == 0) {
+            return true;
+        }
+
+        long diff = new Date().getTime() - regTs;
+        int days = Math.round(diff / (1000 * 60 * 60 * 24));
+
+        int configRefreshInterval = context.getResources().getInteger(R.integer.push_refresh_interval_days);
+        if(days >= configRefreshInterval) {
+            return true;
+        }
+
+        Logger.d("Last refreshed %d days ago", days);
+        return false;
     }
 }

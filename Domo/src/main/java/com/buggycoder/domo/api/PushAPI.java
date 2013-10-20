@@ -1,5 +1,7 @@
 package com.buggycoder.domo.api;
 
+import android.content.SharedPreferences;
+
 import com.android.volley.Request;
 import com.android.volley.VolleyError;
 import com.buggycoder.domo.api.request.APIRequest;
@@ -7,6 +9,7 @@ import com.buggycoder.domo.api.response.APIResponse;
 import com.buggycoder.domo.api.response.AdviceRequest;
 import com.buggycoder.domo.api.response.PushDevice;
 import com.buggycoder.domo.app.Config;
+import com.buggycoder.domo.db.Prefs;
 import com.buggycoder.domo.lib.JsonManager;
 import com.buggycoder.domo.lib.Logger;
 import com.buggycoder.domo.lib.RequestManager;
@@ -14,6 +17,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.Date;
 
 /**
  * Created by shirish on 13/10/13.
@@ -46,6 +50,13 @@ public class PushAPI {
 
                 PushDevice pd = response.getResponse();
                 Logger.dump(pd);
+
+                final SharedPreferences.Editor prefEditor = Prefs.getSharedPreferences(config.getContext()).edit();
+                prefEditor.putBoolean(Prefs.Keys.PUSH_REG_COMPLETE, true);
+                prefEditor.putString(Prefs.Keys.PUSH_SUBSCRIBER_ID, pd.getSubscriberId());
+                prefEditor.putLong(Prefs.Keys.PUSH_REG_TS, new Date().getTime());
+                prefEditor.commit();
+
                 Logger.d("subscriberId: " + pd.getSubscriberId());
             }
         };
