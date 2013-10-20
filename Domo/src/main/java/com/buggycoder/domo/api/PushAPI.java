@@ -23,7 +23,7 @@ public class PushAPI {
     public static final String DEVICE_TYPE = "android";
 
     public static void register(final Config config, final String registrationId, final String orgURL, final String orgCode) throws UnsupportedEncodingException {
-        String registerUrl = config.getPushApi() + "/register"
+        String registerUrl = config.getPushApi() + "register"
                 + "?token=" + URLEncoder.encode(orgURL + "|" + orgCode, APIRequest.PROTOCOL_CHARSET);
 
         ObjectNode reqBody = JsonManager.getMapper().createObjectNode();

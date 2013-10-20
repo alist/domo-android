@@ -53,7 +53,7 @@ public class MyQuestionActivity extends BaseFragmentActivity {
 
     @AfterViews
     protected void afterViews() {
-        setSlidingMenu(R.layout.frag_menu, SlidingMenu.RIGHT);
+        getSlidingMenuHelper().setSlidingMenu(R.layout.frag_menu, SlidingMenu.RIGHT);
         loadMyQuestion();
         loadResponses();
     }

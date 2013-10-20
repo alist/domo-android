@@ -57,7 +57,7 @@ public class GetAdviceActivity extends BaseFragmentActivity {
 
     @AfterViews
     protected void afterViews() {
-        setSlidingMenu(R.layout.frag_menu, SlidingMenu.RIGHT);
+        getSlidingMenuHelper().setSlidingMenu(R.layout.frag_menu, SlidingMenu.RIGHT);
 
         tvOrgDisplayName.setText(orgDisplayName);
         askAdviceSubmit.setOnClickListener(new View.OnClickListener() {

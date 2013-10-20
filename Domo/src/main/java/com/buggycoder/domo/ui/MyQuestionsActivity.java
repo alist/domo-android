@@ -58,7 +58,7 @@ public class MyQuestionsActivity extends BaseFragmentActivity {
 
     @AfterViews
     protected void afterViews() {
-        setSlidingMenu(R.layout.frag_menu, SlidingMenu.RIGHT);
+        getSlidingMenuHelper().setSlidingMenu(R.layout.frag_menu, SlidingMenu.RIGHT);
 
         myQuestionsList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -76,7 +76,7 @@ public class MyQuestionsActivity extends BaseFragmentActivity {
         menuToggle.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                toggleSlidingMenu();
+                getSlidingMenuHelper().toggleSlidingMenu();
             }
         });
     }

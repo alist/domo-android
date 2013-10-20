@@ -55,7 +55,7 @@ public class OrgActivity extends BaseFragmentActivity {
 
     @AfterViews
     protected void afterViews() {
-        setSlidingMenu(R.layout.frag_menu, SlidingMenu.RIGHT);
+        getSlidingMenuHelper().setSlidingMenu(R.layout.frag_menu, SlidingMenu.RIGHT);
         loadOrganization();
 
         askAdvice.setOnClickListener(new View.OnClickListener() {
@@ -72,7 +72,7 @@ public class OrgActivity extends BaseFragmentActivity {
         menuToggle.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                toggleSlidingMenu();
+                getSlidingMenuHelper().toggleSlidingMenu();
             }
         });
     }

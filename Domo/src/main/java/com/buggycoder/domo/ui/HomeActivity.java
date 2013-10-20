@@ -43,6 +43,8 @@ import de.keyboardsurfer.android.widget.crouton.Style;
 @WindowFeature(Window.FEATURE_NO_TITLE)
 public class HomeActivity extends BaseFragmentActivity {
 
+    public static final String TAG_FRAG_SELORG = "selorg";
+
     @ViewById
     Button btnAddCommunity;
 
@@ -66,7 +68,7 @@ public class HomeActivity extends BaseFragmentActivity {
 
     @AfterViews
     protected void afterViews() {
-        setSlidingMenu(R.layout.frag_menu, SlidingMenu.RIGHT);
+        getSlidingMenuHelper().setSlidingMenu(R.layout.frag_menu, SlidingMenu.RIGHT);
 
         joinStatus.setText(MSG_WAIT);
 
@@ -164,5 +166,21 @@ public class HomeActivity extends BaseFragmentActivity {
 
     }
 
+    public SelectOrgFragment getSelOrgFragment() {
+        SelectOrgFragment selOrgDialog = (SelectOrgFragment) getSupportFragmentManager().findFragmentByTag(TAG_FRAG_SELORG);
+
+        if (selOrgDialog == null) {
+            selOrgDialog = new SelectOrgFragment_();
+            selOrgDialog.setRetainInstance(true);
+        } else {
+            Logger.d("not null");
+        }
+
+        return selOrgDialog;
+    }
+
+    public void showSelOrgFragment() {
+        getSelOrgFragment().show(getSupportFragmentManager(), TAG_FRAG_SELORG);
+    }
 
 }
