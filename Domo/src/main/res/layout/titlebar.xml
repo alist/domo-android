@@ -36,7 +36,7 @@
         android:layout_width="40sp"
         android:layout_height="40sp"
         android:id="@+id/menuToggle"
-        android:alpha="0.8"
+        android:alpha="0.7"
         android:src="@drawable/domo_menu"
         android:layout_alignParentTop="true"
         android:layout_alignParentRight="true" />

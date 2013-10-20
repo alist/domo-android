@@ -11,7 +11,6 @@ import com.buggycoder.domo.R;
 import com.buggycoder.domo.api.response.MyOrganization;
 import com.buggycoder.domo.app.Config;
 import com.buggycoder.domo.db.DatabaseHelper;
-import com.buggycoder.domo.lib.PubSub;
 import com.buggycoder.domo.ui.base.BaseFragmentActivity;
 import com.j256.ormlite.dao.Dao;
 import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
@@ -36,11 +35,15 @@ public class OrgActivity extends BaseFragmentActivity {
 
     @ViewById
     TextView orgDisplayName;
+
     @ViewById
     ImageView orgBanner;
 
     @ViewById
     Button askAdvice;
+
+    @ViewById
+    Button btnMyQuestions;
 
     @Extra
     String orgId;
@@ -66,6 +69,14 @@ public class OrgActivity extends BaseFragmentActivity {
                         .orgCode(myOrg.getCode())
                         .orgDisplayName(myOrg.getDisplayName())
                         .start();
+            }
+        });
+
+        btnMyQuestions.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+//                MyQuestionsActivity_.intent(OrgActivity.this).organization(myOrg.getId()).start();
+                MyQuestionsActivity_.intent(OrgActivity.this).start();
             }
         });
 

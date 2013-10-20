@@ -56,8 +56,15 @@
             android:text="Ask Advice"
             android:id="@+id/askAdvice"
             android:layout_gravity="center_horizontal"
-            android:layout_marginTop="30sp" />
+            android:layout_marginTop="35sp" />
 
+        <Button
+            android:id="@+id/btnMyQuestions"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="My Questions"
+            android:layout_marginTop="25sp"/>
 
     </LinearLayout>
 </ScrollView>

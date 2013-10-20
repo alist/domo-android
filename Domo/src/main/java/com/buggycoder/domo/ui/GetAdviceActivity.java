@@ -88,5 +88,7 @@ public class GetAdviceActivity extends BaseFragmentActivity {
         }
 
         Crouton.makeText(this, "Posted successfully", Style.INFO).show();
+        MyQuestionsActivity_.intent(GetAdviceActivity.this).start();
+        finish();
     }
 }

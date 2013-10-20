@@ -51,6 +51,10 @@ public class Config {
         return apiRoot + API_ROOT.PUSH;
     }
 
+    public String getApiRoot() {
+        return apiRoot;
+    }
+
     public Context getContext() {
         return context;
     }

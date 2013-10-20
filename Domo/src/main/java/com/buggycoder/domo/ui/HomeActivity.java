@@ -8,6 +8,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.buggycoder.domo.R;
+import com.buggycoder.domo.api.SupporteeAPI;
 import com.buggycoder.domo.api.response.MyOrganization;
 import com.buggycoder.domo.app.Config;
 import com.buggycoder.domo.db.DatabaseHelper;
@@ -24,6 +25,7 @@ import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Background;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EActivity;
+import org.androidannotations.annotations.Extra;
 import org.androidannotations.annotations.SystemService;
 import org.androidannotations.annotations.ViewById;
 import org.androidannotations.annotations.WindowFeature;
@@ -58,6 +60,9 @@ public class HomeActivity extends BaseFragmentActivity {
     @Bean
     Config config;
 
+    @Extra
+    boolean isExplicitStart;
+
     PushHelper pushHelper;
 
     private static final String MSG_WAIT = "Please wait...";
@@ -73,10 +78,25 @@ public class HomeActivity extends BaseFragmentActivity {
 
     @AfterViews
     protected void afterViews() {
-        getSlidingMenuHelper().setSlidingMenu(R.layout.frag_menu, SlidingMenu.RIGHT);
 
         pushHelper = new PushHelper(this);
         pushHelper.checkState();
+
+        if(!isExplicitStart) {
+            try {
+                Dao<MyOrganization, String> myOrgDao = DatabaseHelper.getDaoManager().getDao(MyOrganization.class);
+                List<MyOrganization> myOrgsList = myOrgDao.queryBuilder().limit(1L).query();
+                if(myOrgsList != null && myOrgsList.size() > 0) {
+                    OrgActivity_.intent(HomeActivity.this).orgId(myOrgsList.get(0).getId()).start();
+                    finish();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+
+        getSlidingMenuHelper().setSlidingMenu(R.layout.frag_menu, SlidingMenu.RIGHT);
+
 
         joinStatus.setText(MSG_WAIT);
         btnAddCommunity.setOnClickListener(new View.OnClickListener() {
@@ -143,6 +163,8 @@ public class HomeActivity extends BaseFragmentActivity {
 
         final List<MyOrganization> finalMyOrganizationList = myOrganizationList;
 
+        SupporteeAPI.fetchUpdates(config);
+
         postToUi(new Runnable() {
             @Override
             public void run() {
@@ -151,7 +173,7 @@ public class HomeActivity extends BaseFragmentActivity {
                 View v;
                 TextView tv;
 
-                for(final MyOrganization o : finalMyOrganizationList) {
+                for (final MyOrganization o : finalMyOrganizationList) {
                     v = (View) layoutInflater.inflate(android.R.layout.simple_list_item_1, null, true);
                     v.setOnClickListener(new View.OnClickListener() {
                         @Override

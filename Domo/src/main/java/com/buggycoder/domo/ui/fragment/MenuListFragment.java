@@ -1,10 +1,9 @@
 package com.buggycoder.domo.ui.fragment;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.Button;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 
 import com.buggycoder.domo.R;
@@ -12,12 +11,10 @@ import com.buggycoder.domo.api.response.MyOrganization;
 import com.buggycoder.domo.db.DatabaseHelper;
 import com.buggycoder.domo.events.OrganizationEvents;
 import com.buggycoder.domo.events.UIEvents;
-import com.buggycoder.domo.lib.Logger;
 import com.buggycoder.domo.lib.PubSub;
-import com.buggycoder.domo.ui.OrgActivity;
+import com.buggycoder.domo.ui.HomeActivity_;
 import com.buggycoder.domo.ui.OrgActivity_;
 import com.buggycoder.domo.ui.adapter.MenuAdapter;
-import com.buggycoder.domo.ui.base.BaseFragmentActivity;
 import com.buggycoder.domo.ui.base.BaseListFragment;
 import com.j256.ormlite.dao.Dao;
 
@@ -34,6 +31,7 @@ import java.util.List;
 @EFragment(R.layout.menu_list)
 public class MenuListFragment extends BaseListFragment {
 
+    public static final String MNU_DOMO_HOME = "DOMO_HOME";
     @Bean
     MenuAdapter menuAdapter;
 
@@ -78,6 +76,12 @@ public class MenuListFragment extends BaseListFragment {
 
         menuAdapter.clear();
 
+        MyOrganization homeOrg = new MyOrganization();
+        homeOrg.setId(MNU_DOMO_HOME);
+        homeOrg.setDisplayName("Home");
+
+        menuAdapter.add(homeOrg);
+
         for(MyOrganization o : myOrganizationList) {
             menuAdapter.add(o);
         }
@@ -95,7 +99,14 @@ public class MenuListFragment extends BaseListFragment {
             PubSub.publish(selMenuItem);
 
             PubSub.unsubscribe(this);
-            OrgActivity_.intent(getSherlockActivity()).orgId(selMyOrg.getId()).start();
+
+            final String mnuId = selMyOrg.getId();
+            if(mnuId.equals(MNU_DOMO_HOME)) {
+                HomeActivity_.intent(getSherlockActivity()).isExplicitStart(true).flags(Intent.FLAG_ACTIVITY_SINGLE_TOP).start();
+                return;
+            }
+
+            OrgActivity_.intent(getSherlockActivity()).orgId(mnuId).flags(Intent.FLAG_ACTIVITY_SINGLE_TOP).start();
         }
     }
 

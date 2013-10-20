@@ -63,6 +63,8 @@
             </intent-filter>
         </receiver>
 
+        <service android:name=".service.DomoService" />
+
         <!-- PUSH -->
         <receiver
             android:name=".push.GcmBroadcastReceiver"
@@ -72,6 +74,7 @@
                 <category android:name="com.buggycoder.domo" />
             </intent-filter>
         </receiver>
+
         <service android:name=".push.GcmIntentService" />
         <!-- /PUSH -->
 

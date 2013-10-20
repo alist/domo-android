@@ -8,6 +8,10 @@ import com.buggycoder.domo.api.response.AdviceRequest;
  */
 public class SupporteeEvents {
 
+    public static class AdviceRequestsUpdated {
+
+    }
+
     public static class GetAdviceResult {
         public APIResponse<AdviceRequest> result;
 

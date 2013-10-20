@@ -18,7 +18,6 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.j256.ormlite.dao.Dao;
-import com.j256.ormlite.stmt.QueryBuilder;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -58,8 +57,6 @@ public class PushHelper {
             } else if(!Prefs.getBoolean(context, Prefs.Keys.PUSH_REG_COMPLETE, false)) {
                 Logger.d("sendRegistrationIdToBackend");
                 sendRegistrationIdToBackend(context, regId);
-            } else {
-                Logger.d("somethingEvilHasHappened");
             }
 
         } else {
@@ -177,10 +174,7 @@ public class PushHelper {
                 // register device
                 try {
                     Dao<MyOrganization, String> myOrganizationDao = DatabaseHelper.getDaoManager().getDao(MyOrganization.class);
-                    QueryBuilder<MyOrganization, String> qBuilder = myOrganizationDao.queryBuilder();
-                    qBuilder.limit(1L);
-
-                    List<MyOrganization> myOrgList = qBuilder.query();
+                    List<MyOrganization> myOrgList = myOrganizationDao.queryBuilder().limit(1L).query();
 
                     if(myOrgList.size() > 0) {
                         Logger.d("push.register");

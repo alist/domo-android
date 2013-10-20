@@ -5,10 +5,12 @@ import android.os.Bundle;
 import android.os.Handler;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.buggycoder.domo.app.MainApplication;
 import com.buggycoder.domo.events.Network;
 import com.buggycoder.domo.events.UIEvents;
 import com.buggycoder.domo.lib.Logger;
 import com.buggycoder.domo.lib.PubSub;
+import com.buggycoder.domo.service.DomoService;
 import com.buggycoder.domo.ui.helper.SlidingMenuHelper;
 
 import de.keyboardsurfer.android.widget.crouton.Crouton;
@@ -25,6 +27,7 @@ public abstract class BaseFragmentActivity extends SherlockFragmentActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        startService(new Intent(this, DomoService.class));
         slidingMenuHelper = new SlidingMenuHelper(this);
     }
 
@@ -33,6 +36,11 @@ public abstract class BaseFragmentActivity extends SherlockFragmentActivity {
         Logger.d("onResume: " + this.getLocalClassName());
         PubSub.subscribe(this);
         super.onResume();
+
+        MainApplication app = (MainApplication) getApplication();
+        if(app != null) {
+            app.getAppStateHelper().stop();
+        }
     }
 
     @Override
@@ -40,6 +48,11 @@ public abstract class BaseFragmentActivity extends SherlockFragmentActivity {
         Logger.d("onPause: " + this.getLocalClassName());
         PubSub.unsubscribe(this);
         super.onPause();
+
+        MainApplication app = (MainApplication) getApplication();
+        if(app != null) {
+            app.getAppStateHelper().start();
+        }
     }
 
     @Override

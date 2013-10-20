@@ -1,26 +1,22 @@
 package com.buggycoder.domo.ui;
 
-import android.text.TextUtils;
 import android.view.View;
 import android.view.Window;
 import android.widget.AdapterView;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import com.buggycoder.domo.R;
-import com.buggycoder.domo.api.response.Advice;
 import com.buggycoder.domo.api.response.AdviceRequest;
-import com.buggycoder.domo.api.response.MyOrganization;
 import com.buggycoder.domo.app.Config;
 import com.buggycoder.domo.db.DatabaseHelper;
+import com.buggycoder.domo.events.SupporteeEvents;
 import com.buggycoder.domo.ui.adapter.MyQuestionsAdapter;
 import com.buggycoder.domo.ui.base.BaseFragmentActivity;
-import com.google.android.gms.internal.ad;
 import com.j256.ormlite.dao.Dao;
+import com.j256.ormlite.stmt.QueryBuilder;
 import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
-import com.squareup.picasso.Picasso;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Background;
@@ -49,6 +45,12 @@ public class MyQuestionsActivity extends BaseFragmentActivity {
     @ViewById
     ListView myQuestionsList;
 
+    @ViewById(android.R.id.empty)
+    TextView emptyView;
+
+    @Extra
+    String organization;
+
     @Bean
     MyQuestionsAdapter myQuestionsAdapter;
 
@@ -70,6 +72,7 @@ public class MyQuestionsActivity extends BaseFragmentActivity {
             }
         });
 
+        myQuestionsList.setEmptyView(emptyView);
         myQuestionsList.setAdapter(myQuestionsAdapter);
         loadMyQuestions();
 
@@ -86,26 +89,39 @@ public class MyQuestionsActivity extends BaseFragmentActivity {
         List<AdviceRequest> adviceRequestList = null;
         try {
             Dao<AdviceRequest, String> adviceRequestDao = DatabaseHelper.getDaoManager().getDao(AdviceRequest.class);
-            adviceRequestList = adviceRequestDao.queryForAll();
+
+            if(organization == null || organization.isEmpty()) {
+                adviceRequestList = adviceRequestDao.queryForAll();
+            } else {
+                QueryBuilder<AdviceRequest, String> queryBuilder = adviceRequestDao.queryBuilder();
+                adviceRequestList = queryBuilder.where().eq("organization", organization).query();
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }
 
         if (adviceRequestList != null) {
 
-            myQuestionsAdapter.clear();
-
-            for(AdviceRequest ar : adviceRequestList) {
-                myQuestionsAdapter.add(ar);
-            }
+            final List<AdviceRequest> finalAdviceRequestList = adviceRequestList;
 
             postToUi(new Runnable() {
                 @Override
                 public void run() {
+                    myQuestionsAdapter.clear();
+
+                    for(AdviceRequest ar : finalAdviceRequestList) {
+                        myQuestionsAdapter.add(ar);
+                    }
+
                     myQuestionsAdapter.notifyDataSetChanged();
                 }
             });
         }
+    }
+
+
+    protected void onEvent(SupporteeEvents.AdviceRequestsUpdated o) {
+        loadMyQuestions();
     }
 
 }

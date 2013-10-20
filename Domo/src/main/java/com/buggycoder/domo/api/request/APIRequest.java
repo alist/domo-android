@@ -178,7 +178,11 @@ public class APIRequest<E extends APIResponse<?>> extends Request<E> {
         public <T> APIResponse processJson(JsonNode jsonRes) throws IOException {
             ObjectMapper mapper = JsonManager.getUnsafeMapper();
             JsonNode response = getResponseNode(jsonRes);
+            try {
+                Logger.d(jsonRes.toString());
+            } catch (Exception e) {
 
+            }
             APIResponse apiResponse;
 
             if (isMapToCollection()) {

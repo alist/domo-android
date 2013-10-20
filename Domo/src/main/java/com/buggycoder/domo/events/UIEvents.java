@@ -7,6 +7,10 @@ import com.buggycoder.domo.api.response.MyOrganization;
  */
 public class UIEvents {
 
+    public static class AppInBackground {
+
+    }
+
     public static class SlidingMenuItemSelected {
         public MyOrganization selMyOrganization;
 
