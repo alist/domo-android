@@ -1,5 +1,6 @@
 package com.buggycoder.domo.ui;
 
+import android.content.Intent;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.Window;
@@ -88,6 +89,14 @@ public class OrgActivity extends BaseFragmentActivity {
         });
     }
 
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        setIntent(intent);
+        loadOrganization();
+    }
+
+
     @Background
     protected void loadOrganization() {
         try {
@@ -103,6 +112,11 @@ public class OrgActivity extends BaseFragmentActivity {
                 public void run() {
                     orgDisplayName.setText(myOrg.getDisplayName());
                     String orgBannerURL = myOrg.getBannerURL();
+
+                    Picasso.with(OrgActivity.this)
+                            .load(R.drawable.ic_launcher)
+                            .into(orgBanner);
+
                     if (!TextUtils.isEmpty(orgBannerURL)) {
                         Picasso.with(OrgActivity.this)
                             .load(myOrg.getBannerURL())

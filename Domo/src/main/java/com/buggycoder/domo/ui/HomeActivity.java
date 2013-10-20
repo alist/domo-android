@@ -135,7 +135,9 @@ public class HomeActivity extends BaseFragmentActivity {
         if (myOrg.getCode().length() > 0) {
             Crouton.makeText(this, "Membership verified.", Style.INFO).show();
             pushHelper.checkState();
-            showMyOrganizations();
+//            showMyOrganizations();
+            OrgActivity_.intent(HomeActivity.this).orgId(o.result.getResponse().getId()).start();
+            finish();
         }
     }
 
