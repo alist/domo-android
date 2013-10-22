@@ -15,7 +15,6 @@ import com.buggycoder.domo.events.SupporteeEvents;
 import com.buggycoder.domo.ui.adapter.MyQuestionsAdapter;
 import com.buggycoder.domo.ui.base.BaseFragmentActivity;
 import com.j256.ormlite.dao.Dao;
-import com.j256.ormlite.stmt.QueryBuilder;
 import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
 
 import org.androidannotations.annotations.AfterViews;
@@ -91,10 +90,9 @@ public class MyQuestionsActivity extends BaseFragmentActivity {
             Dao<AdviceRequest, String> adviceRequestDao = DatabaseHelper.getDaoManager().getDao(AdviceRequest.class);
 
             if(organization == null || organization.isEmpty()) {
-                adviceRequestList = adviceRequestDao.queryForAll();
+                adviceRequestList = adviceRequestDao.queryBuilder().orderBy("_id", false).query();
             } else {
-                QueryBuilder<AdviceRequest, String> queryBuilder = adviceRequestDao.queryBuilder();
-                adviceRequestList = queryBuilder.where().eq("organization", organization).query();
+                adviceRequestList = adviceRequestDao.queryBuilder().where().eq("organization", organization).query();
             }
         } catch (SQLException e) {
             e.printStackTrace();

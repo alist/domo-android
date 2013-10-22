@@ -1,5 +1,6 @@
 package com.buggycoder.domo.ui;
 
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
@@ -15,8 +16,6 @@ import com.buggycoder.domo.db.DatabaseHelper;
 import com.buggycoder.domo.events.OrganizationEvents;
 import com.buggycoder.domo.lib.Logger;
 import com.buggycoder.domo.ui.base.BaseFragmentActivity;
-import com.buggycoder.domo.ui.fragment.SelectOrgFragment;
-import com.buggycoder.domo.ui.fragment.SelectOrgFragment_;
 import com.buggycoder.domo.ui.helper.PushHelper;
 import com.j256.ormlite.dao.Dao;
 import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
@@ -26,6 +25,7 @@ import org.androidannotations.annotations.Background;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.Extra;
+import org.androidannotations.annotations.OnActivityResult;
 import org.androidannotations.annotations.SystemService;
 import org.androidannotations.annotations.ViewById;
 import org.androidannotations.annotations.WindowFeature;
@@ -43,7 +43,7 @@ import de.keyboardsurfer.android.widget.crouton.Style;
 @WindowFeature(Window.FEATURE_NO_TITLE)
 public class HomeActivity extends BaseFragmentActivity {
 
-    public static final String TAG_FRAG_SELORG = "selorg";
+    public static final int ACTIVITY_RESULT_JOIN_COMM = 100;
 
     @ViewById
     Button btnAddCommunity;
@@ -68,19 +68,8 @@ public class HomeActivity extends BaseFragmentActivity {
     private static final String MSG_WAIT = "Please wait...";
     private static final String MSG_NO_COMM = "You have no communities.";
 
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        pushHelper.checkPlayServices();
-    }
-
-
     @AfterViews
     protected void afterViews() {
-
-        pushHelper = new PushHelper(this);
-        pushHelper.checkState();
 
         if(!isExplicitStart) {
             try {
@@ -89,11 +78,15 @@ public class HomeActivity extends BaseFragmentActivity {
                 if(myOrgsList != null && myOrgsList.size() > 0) {
                     OrgActivity_.intent(HomeActivity.this).orgId(myOrgsList.get(0).getId()).start();
                     finish();
+                    return;
                 }
             } catch (SQLException e) {
                 e.printStackTrace();
             }
         }
+
+        pushHelper = new PushHelper(this);
+        pushHelper.checkState(false);
 
         getSlidingMenuHelper().setSlidingMenu(R.layout.frag_menu, SlidingMenu.RIGHT);
 
@@ -102,11 +95,25 @@ public class HomeActivity extends BaseFragmentActivity {
         btnAddCommunity.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                showSelOrgFragment();
+                SelectOrgActivity_.intent(HomeActivity.this).startForResult(ACTIVITY_RESULT_JOIN_COMM);
             }
         });
 
+//        btnAddCommunity.setEnabled(false);
         showMyOrganizations();
+    }
+
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        pushHelper.checkPlayServices(false);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        pushHelper.closeDialog();
     }
 
 
@@ -116,30 +123,6 @@ public class HomeActivity extends BaseFragmentActivity {
     }
 
 
-    protected void onEventMainThread(OrganizationEvents.CheckOrgCodeResult o) {
-        Logger.d("F:CheckOrgCodeResult");
-
-        SelectOrgFragment selOrgDialog = getSelOrgFragment();
-        if (selOrgDialog != null && selOrgDialog.isVisible()) {
-            selOrgDialog.dismiss();
-        }
-
-        if (o.result.hasError) {
-            Crouton.makeText(this, o.result.errors.get(0), Style.ALERT).show();
-            return;
-        }
-
-        MyOrganization myOrg = o.result.getResponse();
-        Logger.dump(myOrg);
-
-        if (myOrg.getCode().length() > 0) {
-            Crouton.makeText(this, "Membership verified.", Style.INFO).show();
-            pushHelper.checkState();
-//            showMyOrganizations();
-            OrgActivity_.intent(HomeActivity.this).orgId(o.result.getResponse().getId()).start();
-            finish();
-        }
-    }
 
     @Background
     protected void showMyOrganizations() {
@@ -193,21 +176,22 @@ public class HomeActivity extends BaseFragmentActivity {
 
     }
 
-    public SelectOrgFragment getSelOrgFragment() {
-        SelectOrgFragment selOrgDialog = (SelectOrgFragment) getSupportFragmentManager().findFragmentByTag(TAG_FRAG_SELORG);
+    @OnActivityResult(ACTIVITY_RESULT_JOIN_COMM)
+    protected void onJoinCommunityResult(int resultCode, Intent data){
 
-        if (selOrgDialog == null) {
-            selOrgDialog = new SelectOrgFragment_();
-            selOrgDialog.setRetainInstance(true);
-        } else {
-            Logger.d("not null");
+        if(data == null) {
+            return;
         }
 
-        return selOrgDialog;
-    }
-
-    public void showSelOrgFragment() {
-        getSelOrgFragment().show(getSupportFragmentManager(), TAG_FRAG_SELORG);
+        if(resultCode == 0){
+            Crouton.makeText(this, data.getStringExtra(SelectOrgActivity.EXTRA_ERROR), Style.ALERT).show();
+            return;
+        } else if(resultCode == 1) {
+            pushHelper.checkState(true);
+            showMyOrganizations();
+            OrgActivity_.intent(HomeActivity.this).orgId(data.getStringExtra(SelectOrgActivity.EXTRA_ORG_ID)).start();
+            return;
+        }
     }
 
 }

@@ -1,0 +1,13 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="horizontal"
+    style="@style/activity" >
+
+    <fragment
+        android:id="@+id/myFragment"
+        android:name="com.buggycoder.domo.ui.fragment.SelectOrgFragment_"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent" />
+
+</LinearLayout>

@@ -12,6 +12,7 @@ import com.buggycoder.domo.api.SupporteeAPI;
 import com.buggycoder.domo.app.Config;
 import com.buggycoder.domo.events.SupporteeEvents;
 import com.buggycoder.domo.lib.Logger;
+import com.buggycoder.domo.lib.PubSub;
 import com.buggycoder.domo.ui.base.BaseFragmentActivity;
 import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
 
@@ -49,11 +50,6 @@ public class GetAdviceActivity extends BaseFragmentActivity {
     @Extra
     String orgURL, orgCode, orgDisplayName;
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
-        super.onCreate(savedInstanceState);
-    }
 
     @AfterViews
     protected void afterViews() {
@@ -78,17 +74,18 @@ public class GetAdviceActivity extends BaseFragmentActivity {
         }
     }
 
-
-    protected void onEventMainThread(SupporteeEvents.GetAdviceResult o) {
+    protected void onEventMainThread(final SupporteeEvents.GetAdviceResult o) {
+        Logger.d("onEventMainThread");
         etQuery.setText("");
 
         if (o.result.hasError) {
-            Crouton.makeText(this, o.result.errors.get(0), Style.ALERT).show();
+            Crouton.makeText(GetAdviceActivity.this, o.result.errors.get(0), Style.ALERT).show();
             return;
         }
 
-        Crouton.makeText(this, "Posted successfully", Style.INFO).show();
+        Crouton.makeText(GetAdviceActivity.this, "Posted successfully", Style.INFO).show();
         MyQuestionsActivity_.intent(GetAdviceActivity.this).start();
         finish();
     }
+
 }

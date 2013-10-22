@@ -1,5 +1,6 @@
 package com.buggycoder.domo.ui.helper;
 
+import android.app.Dialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
@@ -38,15 +39,21 @@ public class PushHelper {
     private final static int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
     final String SENDER_ID;
     GoogleCloudMessaging gcm;
-
+    Dialog googlePlayServiceDialog;
 
     public PushHelper(BaseFragmentActivity activity) {
         this.activity = activity;
         SENDER_ID = activity.getString(R.string.push_sender_id);
     }
 
-    public void checkState() {
-        if (checkPlayServices()) {
+    public void closeDialog() {
+        if(googlePlayServiceDialog != null && googlePlayServiceDialog.isShowing()) {
+            googlePlayServiceDialog.dismiss();
+        }
+    }
+
+    public void checkState(boolean silent) {
+        if (checkPlayServices(silent)) {
             Context context = activity.getApplicationContext();
             gcm = GoogleCloudMessaging.getInstance(activity);
             String regId = getRegistrationId(context);
@@ -86,12 +93,17 @@ public class PushHelper {
      * it doesn't, display a dialog that allows users to download the APK from
      * the Google Play Store or enable it in the device's system settings.
      */
-    public boolean checkPlayServices() {
+    public boolean checkPlayServices(boolean silent) {
+
+        if(googlePlayServiceDialog != null && googlePlayServiceDialog.isShowing()) {
+            return false;
+        }
+
         int resultCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(activity);
         if (resultCode != ConnectionResult.SUCCESS) {
-            if (GooglePlayServicesUtil.isUserRecoverableError(resultCode)) {
-                GooglePlayServicesUtil.getErrorDialog(resultCode, activity,
-                        PLAY_SERVICES_RESOLUTION_REQUEST).show();
+            if (!silent && GooglePlayServicesUtil.isUserRecoverableError(resultCode)) {
+                googlePlayServiceDialog = GooglePlayServicesUtil.getErrorDialog(resultCode, activity, PLAY_SERVICES_RESOLUTION_REQUEST);
+                googlePlayServiceDialog.show();
             } else {
                 Logger.d("This device is not supported.");
                 activity.finish();

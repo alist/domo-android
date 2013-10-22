@@ -1,11 +1,7 @@
 package com.buggycoder.domo.ui.fragment;
 
-import android.app.Dialog;
-import android.content.DialogInterface;
-import android.os.Bundle;
 import android.text.Editable;
 import android.view.View;
-import android.view.Window;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
@@ -20,10 +16,9 @@ import com.buggycoder.domo.api.response.MyOrganization;
 import com.buggycoder.domo.api.response.Organization;
 import com.buggycoder.domo.app.Config;
 import com.buggycoder.domo.db.DatabaseHelper;
-import com.buggycoder.domo.lib.Logger;
 import com.buggycoder.domo.lib.UIUtils;
 import com.buggycoder.domo.ui.adapter.AutoCompleteOrgAdapter;
-import com.buggycoder.domo.ui.base.BaseDialogFragment;
+import com.buggycoder.domo.ui.base.BaseFragment;
 import com.j256.ormlite.dao.Dao;
 
 import org.androidannotations.annotations.AfterTextChange;
@@ -44,7 +39,7 @@ import java.util.List;
  */
 
 @EFragment(R.layout.dialog_sel_org)
-public class SelectOrgFragment extends BaseDialogFragment {
+public class SelectOrgFragment extends BaseFragment {
 
     @ViewById
     LinearLayout dialogContainer;
@@ -76,20 +71,6 @@ public class SelectOrgFragment extends BaseDialogFragment {
     @InstanceState
     boolean isOrgSelected = false, isOrgSelComplete = false;
 
-
-    @Override
-    public Dialog onCreateDialog(Bundle savedInstanceState) {
-        Dialog dialog = super.onCreateDialog(savedInstanceState);
-        dialog.getWindow().requestFeature(Window.FEATURE_NO_TITLE);
-        return dialog;
-    }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        Logger.d("onDestroyView");
-    }
-
     @AfterViews
     protected void afterViews() {
 
@@ -105,7 +86,7 @@ public class SelectOrgFragment extends BaseDialogFragment {
 
         setupOrgAutocomplete();
         acOrgCode.requestFocus();
-        getDialog().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+        getSherlockActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
 
         btnAskCode.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -197,13 +178,6 @@ public class SelectOrgFragment extends BaseDialogFragment {
     }
 
 
-    @Override
-    public void onDismiss(DialogInterface dialog) {
-        resetOrgSel();
-        super.onDismiss(dialog);
-    }
-
-
     protected void setupOrgAutocomplete() {
 
         Dao<MyOrganization, String> myOrgDao = null;
@@ -238,4 +212,5 @@ public class SelectOrgFragment extends BaseDialogFragment {
     public boolean isOrgSelComplete() {
         return isOrgSelComplete;
     }
+
 }

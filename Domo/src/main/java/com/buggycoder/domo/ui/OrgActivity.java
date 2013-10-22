@@ -57,6 +57,7 @@ public class OrgActivity extends BaseFragmentActivity {
     Dao<MyOrganization, String> myOrgDao;
     MyOrganization myOrg;
 
+
     @AfterViews
     protected void afterViews() {
         getSlidingMenuHelper().setSlidingMenu(R.layout.frag_menu, SlidingMenu.RIGHT);

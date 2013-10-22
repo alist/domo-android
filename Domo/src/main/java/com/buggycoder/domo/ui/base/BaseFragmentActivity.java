@@ -33,9 +33,9 @@ public abstract class BaseFragmentActivity extends SherlockFragmentActivity {
 
     @Override
     protected void onResume() {
+        super.onResume();
         Logger.d("onResume: " + this.getLocalClassName());
         PubSub.subscribe(this);
-        super.onResume();
 
         MainApplication app = (MainApplication) getApplication();
         if(app != null) {
@@ -45,9 +45,9 @@ public abstract class BaseFragmentActivity extends SherlockFragmentActivity {
 
     @Override
     protected void onPause() {
+        super.onPause();
         Logger.d("onPause: " + this.getLocalClassName());
         PubSub.unsubscribe(this);
-        super.onPause();
 
         MainApplication app = (MainApplication) getApplication();
         if(app != null) {

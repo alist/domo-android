@@ -61,6 +61,7 @@ public class SupporteeAPI {
 
                     AdviceRequest ar = response.getResponse();
                     Dao.CreateOrUpdateStatus status = daoOrg.createOrUpdate(ar);
+
                     PubSub.publish(new SupporteeEvents.GetAdviceResult(response));
 
                     Logger.d(status.isCreated() + " | " + status.isUpdated());
