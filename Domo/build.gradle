@@ -22,7 +22,7 @@ android {
 
     defaultConfig {
         minSdkVersion 9
-        targetSdkVersion 17
+        targetSdkVersion 14
         versionName '1.0'
         versionCode 1
     }
@@ -36,7 +36,7 @@ configurations {
 
 
 dependencies {
-    compile 'com.android.support:support-v4:18.0.0'
+    compile 'com.android.support:support-v4:18.0.+'
     compile 'com.google.android.gms:play-services:3.1.+'
     compile 'com.fasterxml.jackson.core:jackson-core:2.2.2'
     compile 'com.fasterxml.jackson.core:jackson-annotations:2.2.2'
@@ -44,22 +44,20 @@ dependencies {
     compile 'com.j256.ormlite:ormlite-core:4.45'
     compile 'com.j256.ormlite:ormlite-android:4.45'
     compile 'com.squareup.picasso:picasso:2.1.1'
+    compile 'com.actionbarsherlock:actionbarsherlock:4.4.0@aar'
+
 
     compile('de.keyboardsurfer.android.widget:crouton:1.8.1') {
         exclude module: 'support-v4'
-        compile 'com.android.support:support-v4:18.0.0'
+        compile 'com.android.support:support-v4:18.0.+'
     }
+
+    compile project(':libraries:SlidingMenu:slidingmenu')
+    compile files('libs/eventbus-2.1.0-beta-3.jar')
+    compile files('libs/volley.jar')
 
     apt 'org.androidannotations:androidannotations:3.0-SNAPSHOT'
     compile 'org.androidannotations:androidannotations-api:3.0-SNAPSHOT'
-
-
-    compile project(':libraries:actionbarsherlock')
-    compile project(':libraries:SlidingMenu:slidingmenu')
-
-
-    compile files('libs/eventbus-2.1.0-beta-1.jar')
-    compile files('libs/volley.jar')
 }
 
 
