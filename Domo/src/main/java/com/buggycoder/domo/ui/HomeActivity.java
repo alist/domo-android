@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -19,6 +20,7 @@ import com.buggycoder.domo.ui.base.BaseFragmentActivity;
 import com.buggycoder.domo.ui.helper.PushHelper;
 import com.j256.ormlite.dao.Dao;
 import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
+import com.squareup.picasso.Picasso;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Background;
@@ -157,16 +159,24 @@ public class HomeActivity extends BaseFragmentActivity {
 
                 View v;
                 TextView tv;
+                ImageView iv;
 
                 for (final MyOrganization o : finalMyOrganizationList) {
-                    v = (View) layoutInflater.inflate(android.R.layout.simple_list_item_1, null, true);
+                    v = (View) layoutInflater.inflate(R.layout.menu_row, null, true);
                     v.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
                             OrgActivity_.intent(HomeActivity.this).orgId(o.getId()).start();
                         }
                     });
-                    tv = (TextView) v.findViewById(android.R.id.text1);
+                    iv = (ImageView) v.findViewById(R.id.menuOrgIcon);
+                    Picasso.with(HomeActivity.this)
+                            .load(o.getBannerURL())
+                            .resize(100, 100)
+                            .centerCrop()
+                            .placeholder(R.drawable.ic_launcher)
+                            .into(iv);
+                    tv = (TextView) v.findViewById(R.id.menuOrgDisplayName);
                     tv.setText(o.getDisplayName());
                     tv.setTag(o.getId());
                     llCommunities.addView(v);

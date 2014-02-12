@@ -4,7 +4,7 @@
         Base application theme, dependent on API level. This theme is replaced
         by AppBaseTheme from res/values-vXX/styles.xml on newer devices.
     -->
-    <style name="AppBaseTheme" parent="Theme.Sherlock.Light">
+    <style name="AppBaseTheme" parent="Theme.Sherlock.Light.NoActionBar">
         <!--
             Theme customizations available in newer API levels can go in
             res/values-vXX/styles.xml, while customizations related to
@@ -71,14 +71,15 @@
         <item name="android:paddingBottom">10dip</item>
     </style>
 
-    <style name="CustomDialog" parent="Theme.Sherlock.Light.Dialog">
-        <!--<item name="android:backgroundDimEnabled">false</item>-->
-        <!--<item name="android:cacheColorHint">@android:color/transparent</item>-->
-        <!--<item name="android:windowBackground">@android:color/transparent</item>-->
-    </style>
+    <!--<style name="CustomDialog" parent="Theme.Sherlock.Light.Dialog">-->
+        <!--&lt;!&ndash;<item name="android:backgroundDimEnabled">false</item>&ndash;&gt;-->
+        <!--&lt;!&ndash;<item name="android:cacheColorHint">@android:color/transparent</item>&ndash;&gt;-->
+        <!--&lt;!&ndash;<item name="android:windowBackground">@android:color/transparent</item>&ndash;&gt;-->
+    <!--</style>-->
 
     <color name="domo_green">#00B147</color>
     <color name="domo_white">#FFFFFF</color>
+    <color name="domo_grey">#E1E1E1</color>
     <color name="domo_white_trans">#77FFFFFF</color>
     <color name="domo_black_trans">#22000000</color>
 </resources>

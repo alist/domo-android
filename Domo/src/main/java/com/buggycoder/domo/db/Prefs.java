@@ -8,8 +8,6 @@ import android.content.SharedPreferences;
  */
 public class Prefs {
 
-    public static final String PREF_APP_PACKAGE = "com.buggycoder.domo";
-
     public interface Keys {
         public static final String PUSH_REG_ID = "push-reg-id";
         public static final String PUSH_REG_COMPLETE = "push-reg-complete";
@@ -20,7 +18,7 @@ public class Prefs {
     }
 
     public static SharedPreferences getSharedPreferences(Context context) {
-        return context.getSharedPreferences(PREF_APP_PACKAGE, Context.MODE_PRIVATE);
+        return context.getSharedPreferences(context.getPackageName(), Context.MODE_PRIVATE);
     }
 
     public static void put(Context context, String key, String value) {

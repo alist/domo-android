@@ -3,7 +3,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:0.6.+'
+        classpath 'com.android.tools.build:gradle:0.7.+'
     }
 }
 apply plugin: 'android'
@@ -22,7 +22,7 @@ android {
 
     defaultConfig {
         minSdkVersion 9
-        targetSdkVersion 14
+        targetSdkVersion 17
         versionName '1.0'
         versionCode 1
     }
@@ -53,11 +53,12 @@ dependencies {
     }
 
     compile project(':libraries:SlidingMenu:slidingmenu')
+
+    apt files('libs/androidannotations-with-codemodel-3.0-SNAPSHOT.jar')
+    compile files('libs/androidannotations-api-3.0-SNAPSHOT.jar')
+
     compile files('libs/eventbus-2.1.0-beta-3.jar')
     compile files('libs/volley.jar')
-
-    apt 'org.androidannotations:androidannotations:3.0-SNAPSHOT'
-    compile 'org.androidannotations:androidannotations-api:3.0-SNAPSHOT'
 }
 
 
@@ -91,17 +92,3 @@ android.applicationVariants.all { variant ->
     }
 }
 
-//afterEvaluate {
-//    android.applicationVariants.each { variant ->
-//        def aptOutputDir = file("${project.buildDir}/source/apt")
-//
-//        variant.javaCompile.doFirst {
-//            aptOutputDir.mkdirs()
-//            variant.javaCompile.options.compilerArgs += [
-//                    '-processorpath', configurations.apt.getAsPath(),
-//                    '-AandroidManifestFile=' + variant.processResources.manifestFile,
-//                    '-s', aptOutputDir
-//            ]
-//        }
-//    }
-//}
