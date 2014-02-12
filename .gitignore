@@ -3,3 +3,5 @@ gradle/*
 .idea/*
 gen/*
 libraries/*
+*.iml
+local.properties
